@@ -17,10 +17,13 @@ import { Loader2, Save } from 'lucide-react'
 import {
   createRecordAction,
   updateRecordAction,
+  updateAiFieldsAction,
   type RecordFormValues,
 } from '@/app/(dashboard)/records/actions'
+import { VoiceRecorder } from './voice-recorder'
 import { VISIT_TYPE_LABELS } from '@/types/records'
 import type { VisitRecord } from '@/types/records'
+import type { AiClassifyResult } from '@/types/voice'
 import type { Enums } from '@/types/database.types'
 
 interface HouseholdOption {
@@ -63,6 +66,66 @@ export function RecordForm({
     record?.duration_actual_min?.toString() ?? ''
   )
 
+  // 음성 녹음용 draft record ID 관리
+  const [draftRecordId, setDraftRecordId] = useState<string | null>(
+    record?.id ?? null
+  )
+  const [isCreatingDraft, setIsCreatingDraft] = useState(false)
+
+  // 녹음 시작 전 draft record 생성 (voice_recordings FK 요구)
+  async function ensureDraftRecord(): Promise<string | null> {
+    if (draftRecordId) return draftRecordId
+    if (!householdId) return null
+
+    setIsCreatingDraft(true)
+    const result = await createRecordAction({
+      household_id: householdId,
+      schedule_id: defaultScheduleId ?? null,
+      visit_type: visitType,
+      visited_at: visitedAt,
+      content: null,
+      special_notes: null,
+      duration_actual_min: null,
+    })
+    setIsCreatingDraft(false)
+
+    if (result.success) {
+      setDraftRecordId(result.data.id)
+      return result.data.id
+    }
+    return null
+  }
+
+  // AI 분류 결과를 폼 필드에 자동 채우기
+  async function handleClassified(result: AiClassifyResult) {
+    setContent(result.content)
+    setSpecialNotes(result.special_notes)
+
+    // ai_summary, ai_follow_up은 DB에 직접 저장
+    if (draftRecordId && (result.ai_summary || result.ai_follow_up)) {
+      await updateAiFieldsAction(draftRecordId, result.ai_summary, result.ai_follow_up)
+    }
+  }
+
+  // 음성 버튼 클릭 → draft 생성 후 VoiceRecorder 활성화
+  const [voiceRecordId, setVoiceRecordId] = useState<string | null>(
+    record?.id ?? null
+  )
+  const [isPreparingVoice, setIsPreparingVoice] = useState(false)
+
+  async function handleVoiceStart() {
+    if (voiceRecordId) return // 이미 준비됨
+    if (!householdId) {
+      setError('음성 입력 전에 가구를 먼저 선택해주세요')
+      return
+    }
+    setError('')
+    setIsPreparingVoice(true)
+    const id = await ensureDraftRecord()
+    setIsPreparingVoice(false)
+    if (id) setVoiceRecordId(id)
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!householdId) {
@@ -81,10 +144,14 @@ export function RecordForm({
       duration_actual_min: duration ? parseInt(duration) : null,
     }
 
+    const targetId = draftRecordId
+
     startTransition(async () => {
-      const result = isEdit
-        ? await updateRecordAction(record.id, values)
-        : await createRecordAction(values)
+      // draft가 이미 생성된 경우 update, 아니면 create
+      const result =
+        isEdit || targetId
+          ? await updateRecordAction(targetId ?? record!.id, values)
+          : await createRecordAction(values)
 
       if (!result.success) {
         setError(result.error)
@@ -101,7 +168,14 @@ export function RecordForm({
         <Label htmlFor="household">가구 *</Label>
         <Select
           value={householdId}
-          onValueChange={setHouseholdId}
+          onValueChange={(v) => {
+            setHouseholdId(v)
+            // 가구 변경 시 voice record ID 초기화 (새 draft 필요)
+            if (!isEdit) {
+              setDraftRecordId(null)
+              setVoiceRecordId(null)
+            }
+          }}
           disabled={isEdit}
         >
           <SelectTrigger id="household">
@@ -167,12 +241,53 @@ export function RecordForm({
         />
       </div>
 
+      {/* 음성 입력 섹션 */}
+      <div className="space-y-1.5 rounded-lg bg-slate-50 border border-slate-200 p-4">
+        <Label className="text-sm font-medium text-slate-700">
+          AI 음성 입력
+          <span className="ml-1.5 text-xs font-normal text-slate-400">
+            (선택 · Chrome/Edge 권장)
+          </span>
+        </Label>
+
+        {voiceRecordId ? (
+          <VoiceRecorder
+            householdId={householdId}
+            recordId={voiceRecordId}
+            onClassified={handleClassified}
+            disabled={pending}
+          />
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleVoiceStart}
+            disabled={!householdId || isPreparingVoice || pending}
+            className="gap-2 text-slate-600"
+          >
+            {isPreparingVoice ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <span>🎙️</span>
+            )}
+            {isPreparingVoice ? '준비 중...' : '음성으로 입력'}
+          </Button>
+        )}
+
+        {!householdId && (
+          <p className="text-xs text-slate-400" style={{ wordBreak: 'keep-all' }}>
+            가구를 먼저 선택하면 음성 입력이 활성화됩니다
+          </p>
+        )}
+      </div>
+
       {/* 내용 */}
       <div className="space-y-1.5">
         <Label htmlFor="content">심방 내용</Label>
         <Textarea
           id="content"
-          placeholder="심방 내용을 입력하세요"
+          placeholder="심방 내용을 입력하거나 음성으로 자동 채우세요"
           rows={5}
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -200,7 +315,7 @@ export function RecordForm({
       )}
 
       <div className="flex gap-2 pt-2">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || isCreatingDraft}>
           {pending ? (
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           ) : (

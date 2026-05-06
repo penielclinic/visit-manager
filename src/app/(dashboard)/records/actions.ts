@@ -159,6 +159,31 @@ export async function permanentDeleteRecordAction(
   return { success: true, data: undefined }
 }
 
+export async function updateAiFieldsAction(
+  id: string,
+  aiSummary: string,
+  aiFollowUp: string
+): Promise<ActionResult<void>> {
+  const supabase = createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: '인증이 필요합니다' }
+
+  const { error } = await supabase
+    .from('visit_records')
+    .update({
+      ai_summary: aiSummary || null,
+      ai_follow_up: aiFollowUp || null,
+    })
+    .eq('id', id)
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath(`/records/${id}`)
+  return { success: true, data: undefined }
+}
+
 // Mark linked schedule as completed when record is finalized
 export async function completeScheduleAction(
   scheduleId: string
