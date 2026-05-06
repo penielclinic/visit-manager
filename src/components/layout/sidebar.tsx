@@ -53,7 +53,7 @@ const navItems = [
     label: '통계·보고서',
     icon: BarChart3,
     session: 'S8',
-    available: false,
+    available: true,
   },
 ]
 
@@ -110,7 +110,7 @@ export function Sidebar() {
       {/* 하단 */}
       <div className="px-4 py-3 border-t border-slate-200">
         <p className="text-[10px] text-slate-300 text-center whitespace-nowrap">
-          S7 · 음성 AI 완료
+          S8 · 전 세션 완료
         </p>
       </div>
     </aside>
