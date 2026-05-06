@@ -110,7 +110,7 @@ export function Sidebar() {
       {/* 하단 */}
       <div className="px-4 py-3 border-t border-slate-200">
         <p className="text-[10px] text-slate-300 text-center whitespace-nowrap">
-          S6 · 심방 기록 완료
+          S7 · 음성 AI 완료
         </p>
       </div>
     </aside>
