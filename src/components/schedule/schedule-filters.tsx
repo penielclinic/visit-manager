@@ -46,14 +46,14 @@ export function ScheduleFilters({ assignees }: ScheduleFiltersProps) {
   const hasFilters = dateFrom || dateTo || status || visitType || assignedTo
 
   return (
-    <div className="flex flex-wrap gap-3 items-center">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:items-center">
       {/* 날짜 범위 */}
       <div className="flex items-center gap-1.5">
         <Input
           type="date"
           value={dateFrom}
           onChange={(e) => update('date_from', e.target.value)}
-          className="w-38"
+          className="flex-1 sm:w-36 sm:flex-none"
           title="시작 날짜"
         />
         <span className="text-slate-400 text-sm">~</span>
@@ -61,11 +61,12 @@ export function ScheduleFilters({ assignees }: ScheduleFiltersProps) {
           type="date"
           value={dateTo}
           onChange={(e) => update('date_to', e.target.value)}
-          className="w-38"
+          className="flex-1 sm:w-36 sm:flex-none"
           title="종료 날짜"
         />
       </div>
 
+      <div className="flex flex-wrap gap-3 items-center">
       {/* 상태 */}
       <Select
         value={status || '__all__'}
@@ -127,6 +128,7 @@ export function ScheduleFilters({ assignees }: ScheduleFiltersProps) {
           초기화
         </Button>
       )}
+      </div>
     </div>
   )
 }

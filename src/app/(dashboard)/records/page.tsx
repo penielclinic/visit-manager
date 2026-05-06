@@ -54,14 +54,14 @@ export default async function RecordsPage({ searchParams }: PageProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">심방 기록</h1>
           <p className="text-sm text-slate-500 mt-0.5" style={{ wordBreak: 'keep-all' }}>
             심방 내용을 기록하고 관리하세요
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 self-start sm:self-auto">
           <Link href="/records/trash">
             <Button variant="outline" size="sm">
               <Trash2 className="w-4 h-4 mr-2" />

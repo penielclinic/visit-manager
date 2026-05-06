@@ -12,7 +12,7 @@ import {
   BarChart3,
 } from 'lucide-react'
 
-const navItems = [
+export const navItems = [
   {
     href: '/dashboard',
     label: '대시보드',
@@ -61,7 +61,7 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-60 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
+    <aside className="hidden md:flex w-60 flex-shrink-0 bg-white border-r border-slate-200 flex-col">
       {/* 로고 */}
       <div className="h-16 flex items-center px-6 border-b border-slate-200">
         <div>

@@ -66,19 +66,20 @@ export function HouseholdFilters({ districts }: HouseholdFiltersProps) {
   const hasFilters = q || districtId || cellId || status
 
   return (
-    <div className="flex flex-wrap gap-3 items-center">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:items-center">
       <form onSubmit={handleSearch} className="flex gap-2">
         <Input
           name="q"
           defaultValue={q}
           placeholder="가구명·대표자 검색"
-          className="w-52"
+          className="flex-1 sm:w-52 sm:flex-none"
         />
         <Button type="submit" variant="outline" size="sm">
           검색
         </Button>
       </form>
 
+      <div className="flex flex-wrap gap-3 items-center">
       <Select
         value={districtId || '__all__'}
         onValueChange={(v) => update('district', v === '__all__' ? '' : v)}
@@ -137,6 +138,7 @@ export function HouseholdFilters({ districts }: HouseholdFiltersProps) {
           초기화
         </Button>
       )}
+      </div>
     </div>
   )
 }

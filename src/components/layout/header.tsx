@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { LogOut } from 'lucide-react'
+import { MobileNav } from './mobile-nav'
 
 interface HeaderProps {
   user: User
@@ -25,8 +26,9 @@ export function Header({ user }: HeaderProps) {
   const avatarUrl = user.user_metadata?.avatar_url as string | undefined
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-end px-6 gap-3 flex-shrink-0">
-      <div className="flex items-center gap-2">
+    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 gap-3 flex-shrink-0">
+      <MobileNav />
+      <div className="flex items-center gap-2 ml-auto">
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

@@ -64,14 +64,14 @@ export default async function SchedulePage({ searchParams }: PageProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* 헤더 */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">심방 일정</h1>
           <p className="text-sm text-slate-500 mt-0.5" style={{ wordBreak: 'keep-all' }}>
             총 {schedules.length}개 일정
           </p>
         </div>
-        <Button size="sm" asChild>
+        <Button size="sm" className="self-start sm:self-auto" asChild>
           <Link href="/schedule/new">
             <Plus className="w-4 h-4 mr-1.5" />
             일정 등록

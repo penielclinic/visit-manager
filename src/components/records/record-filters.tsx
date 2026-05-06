@@ -29,12 +29,12 @@ export function RecordFilters() {
   }
 
   return (
-    <div className="flex flex-wrap gap-3 items-end">
+    <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 items-end">
       <div className="space-y-1">
         <Label className="text-xs text-slate-500">시작일</Label>
         <Input
           type="date"
-          className="w-36 h-8 text-sm"
+          className="w-full sm:w-36 h-8 text-sm"
           defaultValue={searchParams.get('date_from') ?? ''}
           onChange={(e) => update('date_from', e.target.value)}
         />
@@ -43,7 +43,7 @@ export function RecordFilters() {
         <Label className="text-xs text-slate-500">종료일</Label>
         <Input
           type="date"
-          className="w-36 h-8 text-sm"
+          className="w-full sm:w-36 h-8 text-sm"
           defaultValue={searchParams.get('date_to') ?? ''}
           onChange={(e) => update('date_to', e.target.value)}
         />
@@ -54,7 +54,7 @@ export function RecordFilters() {
           defaultValue={searchParams.get('visit_type') ?? '__all__'}
           onValueChange={(v) => update('visit_type', v)}
         >
-          <SelectTrigger className="w-32 h-8 text-sm">
+          <SelectTrigger className="w-full sm:w-32 h-8 text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -73,7 +73,7 @@ export function RecordFilters() {
           defaultValue={searchParams.get('status') ?? '__all__'}
           onValueChange={(v) => update('status', v)}
         >
-          <SelectTrigger className="w-28 h-8 text-sm">
+          <SelectTrigger className="w-full sm:w-28 h-8 text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -86,11 +86,11 @@ export function RecordFilters() {
           </SelectContent>
         </Select>
       </div>
-      <div className="space-y-1">
+      <div className="col-span-2 sm:col-span-1 space-y-1">
         <Label className="text-xs text-slate-500">검색</Label>
         <Input
           placeholder="가구명 또는 대표자명"
-          className="w-44 h-8 text-sm"
+          className="w-full sm:w-44 h-8 text-sm"
           defaultValue={searchParams.get('search') ?? ''}
           onChange={(e) => update('search', e.target.value)}
         />
