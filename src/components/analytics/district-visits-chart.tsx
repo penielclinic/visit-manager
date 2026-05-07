@@ -24,14 +24,14 @@ export function DistrictVisitsChart({ data }: Props) {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-base whitespace-nowrap">
-          구역별 심방 현황
+          선교회별 심방 현황
         </CardTitle>
         <p className="text-xs text-slate-400">이번 달 완료 / 전체 가구 수</p>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
           <div className="flex items-center justify-center h-[220px] text-slate-300 text-sm">
-            구역 데이터가 없습니다
+            선교회 데이터가 없습니다
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={chartHeight}>

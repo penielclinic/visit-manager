@@ -85,10 +85,10 @@ export function HouseholdFilters({ districts }: HouseholdFiltersProps) {
         onValueChange={(v) => update('district', v === '__all__' ? '' : v)}
       >
         <SelectTrigger className="w-36">
-          <SelectValue placeholder="구역 전체" />
+          <SelectValue placeholder="선교회 전체" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="__all__">구역 전체</SelectItem>
+          <SelectItem value="__all__">선교회 전체</SelectItem>
           {districts.map((d) => (
             <SelectItem key={d.id} value={d.id}>
               <span className="whitespace-nowrap">{d.name}</span>

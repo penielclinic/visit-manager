@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
 
   for (const row of validRows) {
     try {
-      const districtId = await getOrCreateDistrict(row.구역명)
+      const districtId = await getOrCreateDistrict(row.선교회명)
       const cellId = await getOrCreateCell(districtId, row.순명)
 
       const { error } = await admin.from('households').insert({

@@ -84,7 +84,7 @@ export default async function HouseholdDetailPage({ params }: PageProps) {
           </div>
           {household.cells && (
             <div>
-              <dt className="text-slate-400">구역 / 순</dt>
+              <dt className="text-slate-400">선교회 / 순</dt>
               <dd className="font-medium">
                 <div className="flex flex-wrap gap-x-1">
                   <span className="whitespace-nowrap">{household.cells.districts.name}</span>

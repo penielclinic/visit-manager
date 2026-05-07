@@ -40,7 +40,7 @@ export function HouseholdTable({ households }: HouseholdTableProps) {
         <TableRow>
           <TableHead>가구명</TableHead>
           <TableHead>대표자</TableHead>
-          <TableHead>구역 / 순</TableHead>
+          <TableHead>선교회 / 순</TableHead>
           <TableHead>전화</TableHead>
           <TableHead>상태</TableHead>
         </TableRow>

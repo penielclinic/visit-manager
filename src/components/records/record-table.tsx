@@ -36,7 +36,7 @@ export function RecordTable({ records }: RecordTableProps) {
           <TableHead>심방일</TableHead>
           <TableHead>가구명</TableHead>
           <TableHead>대표자</TableHead>
-          <TableHead>구역/셀</TableHead>
+          <TableHead>선교회/순</TableHead>
           <TableHead>심방 유형</TableHead>
           <TableHead>기록자</TableHead>
           <TableHead>상태</TableHead>

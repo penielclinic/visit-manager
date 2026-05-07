@@ -156,16 +156,16 @@ export function HouseholdForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      {/* 구역 */}
+      {/* 선교회 */}
       <div className="space-y-2">
-        <Label>구역 *</Label>
+        <Label>선교회 *</Label>
         <div className="flex gap-2">
           <Select
             value={selectedDistrictId}
             onValueChange={(v) => setSelectedDistrictId(v)}
           >
             <SelectTrigger className="flex-1">
-              <SelectValue placeholder="구역 선택" />
+              <SelectValue placeholder="선교회 선택" />
             </SelectTrigger>
             <SelectContent>
               {districtList.map((d) => (
@@ -191,7 +191,7 @@ export function HouseholdForm({
             <Input
               value={newDistrictName}
               onChange={(e) => setNewDistrictName(e.target.value)}
-              placeholder="새 구역명"
+              placeholder="새 선교회명"
               className="flex-1"
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddDistrict())}
             />
@@ -225,7 +225,7 @@ export function HouseholdForm({
             disabled={!selectedDistrictId}
           >
             <SelectTrigger className="flex-1">
-              <SelectValue placeholder={selectedDistrictId ? '순 선택' : '구역을 먼저 선택하세요'} />
+              <SelectValue placeholder={selectedDistrictId ? '순 선택' : '선교회를 먼저 선택하세요'} />
             </SelectTrigger>
             <SelectContent>
               {availableCells.map((c) => (

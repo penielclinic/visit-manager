@@ -15,7 +15,7 @@ import type { ExcelRow } from '@/types/households'
 import { Upload, FileSpreadsheet, AlertCircle } from 'lucide-react'
 import * as XLSX from 'xlsx'
 
-const REQUIRED_COLS: (keyof ExcelRow)[] = ['가구명', '대표자명', '구역명', '순명']
+const REQUIRED_COLS: (keyof ExcelRow)[] = ['가구명', '대표자명', '선교회명', '순명']
 
 export function ExcelUpload() {
   const router = useRouter()
@@ -52,7 +52,7 @@ export function ExcelUpload() {
             rowIndex: i + 2, // header is row 1
             가구명: row['가구명'] ?? '',
             대표자명: row['대표자명'] ?? '',
-            구역명: row['구역명'] ?? '',
+            선교회명: row['선교회명'] ?? '',
             순명: row['순명'] ?? '',
             '주소(전체)': row['주소(전체)'] ?? '',
             '주소(상세)': row['주소(상세)'] ?? '',
@@ -111,7 +111,7 @@ export function ExcelUpload() {
           {fileName || 'xlsx 또는 xls 파일을 클릭하여 선택하세요'}
         </p>
         <p className="text-xs text-slate-400 mt-1" style={{ wordBreak: 'keep-all' }}>
-          필수 열: 가구명, 대표자명, 구역명, 순명
+          필수 열: 가구명, 대표자명, 선교회명, 순명
         </p>
         <input
           ref={fileRef}
@@ -157,7 +157,7 @@ export function ExcelUpload() {
                   <TableHead className="w-12">행</TableHead>
                   <TableHead>가구명</TableHead>
                   <TableHead>대표자</TableHead>
-                  <TableHead>구역</TableHead>
+                  <TableHead>선교회</TableHead>
                   <TableHead>순</TableHead>
                   <TableHead>전화1</TableHead>
                   <TableHead>오류</TableHead>
@@ -177,7 +177,7 @@ export function ExcelUpload() {
                       <span className="whitespace-nowrap">{row.대표자명}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="whitespace-nowrap">{row.구역명}</span>
+                      <span className="whitespace-nowrap">{row.선교회명}</span>
                     </TableCell>
                     <TableCell>
                       <span className="whitespace-nowrap">{row.순명}</span>

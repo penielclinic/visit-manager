@@ -17,7 +17,7 @@ export default function UploadPage() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900">엑셀 업로드</h1>
         <p className="text-sm text-slate-500 mt-0.5" style={{ wordBreak: 'keep-all' }}>
-          엑셀 파일로 가구를 일괄 등록합니다. 필수 열: 가구명, 대표자명, 구역명, 순명
+          엑셀 파일로 가구를 일괄 등록합니다. 필수 열: 가구명, 대표자명, 선교회명, 순명
         </p>
       </div>
 
@@ -26,9 +26,9 @@ export default function UploadPage() {
         <p className="font-medium mb-1">엑셀 형식 안내</p>
         <ul className="list-disc list-inside space-y-0.5" style={{ wordBreak: 'keep-all' }}>
           <li>1행은 헤더(열 이름)여야 합니다</li>
-          <li>필수 열: 가구명, 대표자명, 구역명, 순명</li>
+          <li>필수 열: 가구명, 대표자명, 선교회명, 순명</li>
           <li>선택 열: 주소(전체), 주소(상세), 전화1, 전화2, 메모</li>
-          <li>구역·순이 DB에 없으면 자동 생성됩니다</li>
+          <li>선교회·순이 DB에 없으면 자동 생성됩니다</li>
         </ul>
       </div>
 

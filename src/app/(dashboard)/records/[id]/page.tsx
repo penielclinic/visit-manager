@@ -102,7 +102,7 @@ export default async function RecordDetailPage({
             }
           />
           <Row
-            label="구역 / 셀"
+            label="선교회 / 순"
             value={
               record.households.cells
                 ? `${record.households.cells.districts?.name ?? ''} / ${record.households.cells.name}`

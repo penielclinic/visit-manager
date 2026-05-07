@@ -49,7 +49,7 @@ export type ExcelRow = {
   rowIndex: number
   가구명: string
   대표자명: string
-  구역명: string
+  선교회명: string
   순명: string
   '주소(전체)': string
   '주소(상세)': string
