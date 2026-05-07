@@ -5,27 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Upload, FileSpreadsheet, ChevronDown, ChevronUp } from 'lucide-react'
 import * as XLSX from 'xlsx'
-
-export interface ParsedMember {
-  full_name: string
-  relation: 'head' | 'spouse' | 'child' | 'parent' | 'sibling' | 'other'
-  gender: 'male' | 'female' | 'undisclosed'
-  birth_year: number | null
-  phone: string | null
-  faith_status: 'registered' | 'baptized' | 'long_absent' | 'unbaptized' | 'confirmed' | 'withdrawn'
-  is_primary: boolean
-}
-
-export interface ParsedHousehold {
-  district_name: string
-  cell_name: string
-  household_name: string
-  representative_name: string
-  address_full: string | null
-  phone_primary: string | null
-  phone_secondary: string | null
-  members: ParsedMember[]
-}
+import type { ParsedMember, ParsedHousehold } from '@/types/households'
 
 // ── 파서 헬퍼 ──────────────────────────────────────────
 

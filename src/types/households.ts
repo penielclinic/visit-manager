@@ -62,3 +62,24 @@ export type ExcelRow = {
 export type ActionResult<T = void> =
   | { success: true; data: T }
   | { success: false; error: string }
+
+export type ParsedMember = {
+  full_name: string
+  relation: 'head' | 'spouse' | 'child' | 'parent' | 'sibling' | 'other'
+  gender: 'male' | 'female' | 'undisclosed'
+  birth_year: number | null
+  phone: string | null
+  faith_status: 'registered' | 'baptized' | 'long_absent' | 'unbaptized' | 'confirmed' | 'withdrawn'
+  is_primary: boolean
+}
+
+export type ParsedHousehold = {
+  district_name: string
+  cell_name: string
+  household_name: string
+  representative_name: string
+  address_full: string | null
+  phone_primary: string | null
+  phone_secondary: string | null
+  members: ParsedMember[]
+}

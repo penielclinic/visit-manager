@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database.types'
-import type { ParsedHousehold } from '@/components/households/church-record-upload'
+import type { ParsedHousehold } from '@/types/households'
 
 export async function POST(req: NextRequest) {
   const supabase = createServerClient()
