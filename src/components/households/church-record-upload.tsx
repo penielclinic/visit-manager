@@ -249,7 +249,7 @@ export function ChurchRecordUpload() {
       const json = await res.json()
       setResult({ inserted: json.inserted ?? 0, errors: json.errors ?? [] })
       if (json.inserted > 0) {
-        setTimeout(() => router.push('/households'), 1500)
+        setTimeout(() => { router.refresh(); router.push('/households') }, 1500)
       }
     } catch {
       setResult({ inserted: 0, errors: ['네트워크 오류가 발생했습니다.'] })

@@ -86,7 +86,7 @@ export function ExcelUpload() {
       } else {
         setResult({ inserted: json.inserted, errors: json.errors ?? [] })
         if (json.inserted > 0) {
-          setTimeout(() => router.push('/households'), 1500)
+          setTimeout(() => { router.refresh(); router.push('/households') }, 1500)
         }
       }
     } catch {
