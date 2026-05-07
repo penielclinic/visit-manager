@@ -79,22 +79,46 @@ function parseSheetInfo(rawData: unknown[][]): { district: string; cell: string 
   return null
 }
 
+// 헤더 행에서 컬럼 위치 자동 감지
+function detectColumns(rawData: string[][]): {
+  C_NO: number; C_HEAD: number; C_RELATION: number
+  C_NAME: number; C_GENDERBIRTH: number; C_STATUS: number
+  C_ADDRESS: number; dataStartRow: number
+} | null {
+  for (let r = 0; r < rawData.length; r++) {
+    const row = rawData[r]
+    for (let c = 0; c < row.length; c++) {
+      if (String(row[c] ?? '').trim() !== 'No') continue
+      const C_NAME = c + 14
+      if (String(row[C_NAME] ?? '').trim() === '성명') {
+        return {
+          C_NO: c,
+          C_HEAD: c + 4,
+          C_RELATION: c + 8,
+          C_NAME,
+          C_GENDERBIRTH: C_NAME + 1,
+          C_STATUS: C_NAME + 6,
+          C_ADDRESS: C_NAME + 10,
+          dataStartRow: r + 1,
+        }
+      }
+    }
+  }
+  return null
+}
+
 // 시트 1개 파싱
 function parseSheet(ws: XLSX.WorkSheet, districtName: string, cellName: string): ParsedHousehold[] {
   const rawData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }) as string[][]
   const result: ParsedHousehold[] = []
   let current: ParsedHousehold | null = null
 
-  // 고정 컬럼 인덱스 (B=0 기준)
-  const C_NO = 4
-  const C_HEAD = 8
-  const C_RELATION = 12
-  const C_NAME = 18
-  const C_GENDERBIRTH = 19
-  const C_STATUS = 24
-  const C_ADDRESS = 28
+  const cols = detectColumns(rawData)
+  if (!cols) return result
 
-  for (let r = 25; r < rawData.length; r++) {
+  const { C_NO, C_HEAD, C_RELATION, C_NAME, C_GENDERBIRTH, C_STATUS, C_ADDRESS, dataStartRow } = cols
+
+  for (let r = dataStartRow; r < rawData.length; r++) {
     const row = rawData[r]
     if (!row || row.length < C_NAME + 1) continue
 
