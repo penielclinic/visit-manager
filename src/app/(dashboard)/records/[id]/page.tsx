@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import { RecordStatusBadge } from '@/components/records/record-status-badge'
 import { DeleteRecordButton } from '@/components/records/delete-record-button'
 import { FinalizeRecordButton } from '@/components/records/finalize-record-button'
+import { PrintRecordButton } from '@/components/records/print-record-button'
 import { VISIT_TYPE_LABELS } from '@/types/records'
 import type { RecordWithRelations } from '@/types/records'
 
@@ -83,6 +84,7 @@ export default async function RecordDetailPage({
               </Link>
             </>
           )}
+          <PrintRecordButton id={record.id} />
           <DeleteRecordButton id={record.id} />
         </div>
       </div>
@@ -126,6 +128,16 @@ export default async function RecordDetailPage({
             value={
               record.content ? (
                 <p className="whitespace-pre-wrap">{record.content}</p>
+              ) : (
+                <span className="text-slate-400">없음</span>
+              )
+            }
+          />
+          <Row
+            label="기도제목"
+            value={
+              record.prayer_notes ? (
+                <p className="whitespace-pre-wrap">{record.prayer_notes}</p>
               ) : (
                 <span className="text-slate-400">없음</span>
               )

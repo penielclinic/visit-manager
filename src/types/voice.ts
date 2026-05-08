@@ -1,5 +1,6 @@
 export interface AiClassifyResult {
   content: string
+  prayer_notes: string
   special_notes: string
   ai_summary: string
   ai_follow_up: string

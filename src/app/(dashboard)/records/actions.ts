@@ -12,6 +12,7 @@ export interface RecordFormValues {
   visit_type: Enums<'visit_type'>
   visited_at: string
   content?: string | null
+  prayer_notes?: string | null
   special_notes?: string | null
   duration_actual_min?: number | null
 }
@@ -33,6 +34,7 @@ export async function createRecordAction(
       visit_type: values.visit_type,
       visited_at: values.visited_at,
       content: values.content ?? null,
+      prayer_notes: values.prayer_notes ?? null,
       special_notes: values.special_notes ?? null,
       duration_actual_min: values.duration_actual_min ?? null,
       visited_by: user.id,
@@ -65,6 +67,7 @@ export async function updateRecordAction(
       visit_type: values.visit_type,
       visited_at: values.visited_at,
       content: values.content ?? null,
+      prayer_notes: values.prayer_notes ?? null,
       special_notes: values.special_notes ?? null,
       duration_actual_min: values.duration_actual_min ?? null,
     })

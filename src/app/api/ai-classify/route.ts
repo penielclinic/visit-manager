@@ -6,11 +6,12 @@ import type { AiClassifyRequest, AiClassifyResponse, AiClassifyResult } from '@/
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const SYSTEM_PROMPT = `당신은 한국 교회 심방 기록을 정리하는 전문 비서입니다.
-주어진 심방 음성 녹취록을 다음 4가지 항목으로 분류하여 JSON으로만 응답하세요.
+주어진 심방 음성 녹취록을 다음 5가지 항목으로 분류하여 JSON으로만 응답하세요.
 다른 텍스트 없이 유효한 JSON만 반환합니다.
 
 {
-  "content": "심방에서 나눈 주요 대화 내용, 기도 제목 공유, 신앙 상태 등 일반적인 심방 내용",
+  "content": "심방에서 나눈 주요 대화 내용, 신앙 상태 등 일반적인 심방 내용",
+  "prayer_notes": "가구원이 요청한 기도제목 목록. 없으면 빈 문자열",
   "special_notes": "건강 문제, 가정 위기, 경제적 어려움, 갈등 등 특별히 주의가 필요한 사항. 없으면 빈 문자열",
   "ai_summary": "전체 심방을 2~3문장으로 요약한 내용",
   "ai_follow_up": "다음 심방 전 담당자가 취해야 할 구체적인 후속 조치. 없으면 빈 문자열"

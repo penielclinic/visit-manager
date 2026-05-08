@@ -61,6 +61,7 @@ export function RecordForm({
     record?.visited_at?.slice(0, 10) ?? new Date().toISOString().slice(0, 10)
   )
   const [content, setContent] = useState(record?.content ?? '')
+  const [prayerNotes, setPrayerNotes] = useState(record?.prayer_notes ?? '')
   const [specialNotes, setSpecialNotes] = useState(record?.special_notes ?? '')
   const [duration, setDuration] = useState(
     record?.duration_actual_min?.toString() ?? ''
@@ -99,6 +100,7 @@ export function RecordForm({
   // AI 분류 결과를 폼 필드에 자동 채우기
   async function handleClassified(result: AiClassifyResult) {
     setContent(result.content)
+    setPrayerNotes(result.prayer_notes)
     setSpecialNotes(result.special_notes)
 
     // ai_summary, ai_follow_up은 DB에 직접 저장
@@ -140,6 +142,7 @@ export function RecordForm({
       visit_type: visitType,
       visited_at: visitedAt,
       content: content || null,
+      prayer_notes: prayerNotes || null,
       special_notes: specialNotes || null,
       duration_actual_min: duration ? parseInt(duration) : null,
     }
@@ -296,16 +299,32 @@ export function RecordForm({
       </div>
 
       {/* 특이사항 */}
-      <div className="space-y-1.5">
-        <Label htmlFor="special-notes">특이사항</Label>
-        <Textarea
-          id="special-notes"
-          placeholder="기도제목, 건강, 가정사 등 특이사항"
-          rows={3}
-          value={specialNotes}
-          onChange={(e) => setSpecialNotes(e.target.value)}
-          style={{ wordBreak: 'keep-all' }}
-        />
+      <div className="space-y-3 rounded-lg border border-slate-200 p-4">
+        <p className="text-sm font-medium text-slate-700">특이사항</p>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="prayer-notes">기도제목</Label>
+          <Textarea
+            id="prayer-notes"
+            placeholder="가구원의 기도제목을 입력하세요"
+            rows={3}
+            value={prayerNotes}
+            onChange={(e) => setPrayerNotes(e.target.value)}
+            style={{ wordBreak: 'keep-all' }}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="special-notes">기타 특이사항</Label>
+          <Textarea
+            id="special-notes"
+            placeholder="건강, 가정사 등 특별히 주의가 필요한 사항"
+            rows={3}
+            value={specialNotes}
+            onChange={(e) => setSpecialNotes(e.target.value)}
+            style={{ wordBreak: 'keep-all' }}
+          />
+        </div>
       </div>
 
       {error && (

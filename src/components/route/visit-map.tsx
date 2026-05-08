@@ -88,7 +88,7 @@ function makeOverlayContent(order: number, name: string) {
 }
 
 export function VisitMap({ nodes, height = '480px' }: VisitMapProps) {
-  const { isLoaded } = useKakaoMap()
+  const { isLoaded, error } = useKakaoMap()
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<kakao.maps.Map | null>(null)
   const overlaysRef = useRef<kakao.maps.CustomOverlay[]>([])
@@ -164,6 +164,20 @@ export function VisitMap({ nodes, height = '480px' }: VisitMapProps) {
 
     map.setBounds(bounds, 60)
   }, [isLoaded, nodes])
+
+  if (error) {
+    return (
+      <div
+        style={{ height }}
+        className="flex flex-col items-center justify-center bg-red-50 rounded-xl text-red-500 gap-2 p-4"
+      >
+        <MapPin className="w-8 h-8" />
+        <p className="text-sm text-center" style={{ wordBreak: 'keep-all' }}>
+          {error}
+        </p>
+      </div>
+    )
+  }
 
   if (!isLoaded) {
     return (
