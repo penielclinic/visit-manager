@@ -8,6 +8,7 @@ import { RouteList } from './route-list'
 import {
   getSchedulesForDate,
   saveRouteAction,
+  geocodeHouseholdAction,
 } from '@/app/(dashboard)/route/actions'
 import {
   schedulesToNodes,
@@ -15,7 +16,7 @@ import {
   calcTotalDistance,
 } from '@/lib/route-optimizer'
 import type { ScheduleWithCoords, RouteNode } from '@/types/routes'
-import { Wand2, Save, Loader2 } from 'lucide-react'
+import { Wand2, Save, Loader2, MapPinOff } from 'lucide-react'
 
 interface RouteOptimizerPanelProps {
   initialSchedules: ScheduleWithCoords[]
@@ -41,6 +42,8 @@ export function RouteOptimizerPanel({
 
   const [datePending, startDateTransition] = useTransition()
   const [savePending, startSaveTransition] = useTransition()
+  const [geocodeAllPending, setGeocodeAllPending] = useState(false)
+  const [geocodeProgress, setGeocodeProgress] = useState('')
 
   // 모든 일정 (좌표 유무 포함)
   const allScheduleItems = schedules.map((s) => ({
@@ -80,6 +83,31 @@ export function RouteOptimizerPanel({
     setNodes(updated)
     setTotalDist(dist)
     onNodesChange(updated)
+  }
+
+  async function handleGeocodeAll() {
+    const missing = schedules.filter(
+      (s) =>
+        s.households.latitude == null &&
+        s.households.address_full
+    )
+    if (missing.length === 0) return
+    setGeocodeAllPending(true)
+    setGeocodeProgress('')
+    let done = 0
+    for (const s of missing) {
+      setGeocodeProgress(`변환 중... ${done}/${missing.length}`)
+      const result = await geocodeHouseholdAction(
+        s.household_id,
+        s.households.address_full!
+      )
+      if (result.success) {
+        handleGeocode(s.household_id, result.data.lat, result.data.lng)
+      }
+      done++
+    }
+    setGeocodeProgress(`완료 (${done}/${missing.length})`)
+    setGeocodeAllPending(false)
   }
 
   function handleGeocode(householdId: string, lat: number, lng: number) {
@@ -147,6 +175,28 @@ export function RouteOptimizerPanel({
             <p className="text-green-600">
               경로 최적화 가능 <strong>{hasCoordCount}</strong>개
             </p>
+          )}
+        </div>
+      )}
+
+      {/* 일괄 좌표 변환 버튼 */}
+      {noCoordCount > 0 && (
+        <div className="space-y-1">
+          <Button
+            onClick={handleGeocodeAll}
+            disabled={geocodeAllPending || datePending}
+            variant="outline"
+            className="w-full text-amber-700 border-amber-300 hover:bg-amber-50"
+          >
+            {geocodeAllPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <MapPinOff className="w-4 h-4 mr-2" />
+            )}
+            전체 좌표 변환 ({noCoordCount}개)
+          </Button>
+          {geocodeProgress && (
+            <p className="text-xs text-center text-slate-500">{geocodeProgress}</p>
           )}
         </div>
       )}
