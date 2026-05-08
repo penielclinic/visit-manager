@@ -5,8 +5,8 @@ async function tryGeocode(
   address: string,
   headers: Record<string, string>
 ): Promise<{ lat: number; lng: number } | null> {
-  // 우편번호 제거
-  const clean = address.replace(/^[\[(]\d{5,6}[\])]\s*/, '').trim()
+  // 우편번호 제거: [48263], [612021], [613-102], (48263) 등
+  const clean = address.replace(/^[\[(]\d{3,6}[-]?\d{0,3}[\])]\s*/, '').trim()
   // 도로명만
   const short = clean.replace(/\s*[\(（].*$/, '').trim()
   // 아파트명 추출: 숫자동 숫자호 등 제거

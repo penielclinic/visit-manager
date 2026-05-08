@@ -41,8 +41,8 @@ export async function geocodeHouseholdAction(
   const addrDetail = household?.address_detail ?? ''
   if (!addrFull?.trim()) return { success: false, error: '주소가 없습니다' }
 
-  // 우편번호 제거: [12345] 또는 (12345) 패턴
-  const cleanFull = addrFull.replace(/^[\[(]\d{5}[\])]\s*/, '').trim()
+  // 우편번호 제거: [48263], [612021], [613-102] 등
+  const cleanFull = addrFull.replace(/^[\[(]\d{3,6}[-]?\d{0,3}[\])]\s*/, '').trim()
   // 도로명 번지까지만: (괄호) 이후 제거
   const shortAddress = cleanFull.replace(/\s*[\(（].*$/, '').trim()
   // address_full + address_detail 결합
