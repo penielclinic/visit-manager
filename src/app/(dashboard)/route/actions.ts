@@ -35,8 +35,12 @@ export async function geocodeHouseholdAction(
   // 우편번호 제거: [12345] 또는 (12345) 패턴
   const cleanAddress = address.replace(/^[\[(]\d{5}[\])]\s*/, '').trim()
   // 도로명 번지까지만 추출: (괄호) 이후 건물명·호수 제거
-  // 예) "기장대로 465-4 (청강리) 대동..." → "기장대로 465-4"
   const shortAddress = cleanAddress.replace(/\s*[\(（].*$/, '').trim()
+
+  console.log('[geocode] original:', address)
+  console.log('[geocode] clean:', cleanAddress)
+  console.log('[geocode] short:', shortAddress)
+  console.log('[geocode] key set:', !!restKey)
 
   const headers = { Authorization: `KakaoAK ${restKey}` }
   let doc: { y: string; x: string } | undefined
@@ -46,25 +50,26 @@ export async function geocodeHouseholdAction(
       `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(query)}`,
       { headers }
     )
-    const addrData: { documents?: { y: string; x: string }[] } = await addrRes.json()
+    const addrData: { documents?: { y: string; x: string }[]; error_type?: string } = await addrRes.json()
+    console.log('[geocode] addr search result for:', query, '→ count:', addrData.documents?.length ?? 0, addrData.error_type ?? '')
     if (addrData.documents?.[0]) return addrData.documents[0]
 
     const kwRes = await fetch(
       `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(query)}`,
       { headers }
     )
-    const kwData: { documents?: { y: string; x: string }[] } = await kwRes.json()
+    const kwData: { documents?: { y: string; x: string }[]; error_type?: string } = await kwRes.json()
+    console.log('[geocode] keyword search result for:', query, '→ count:', kwData.documents?.length ?? 0, kwData.error_type ?? '')
     return kwData.documents?.[0]
   }
 
   try {
-    // 1차: 전체 주소 (우편번호만 제거)
     doc = await kakaoSearch(cleanAddress)
-    // 2차: 도로명 번지까지 (건물명·호수 제거)
     if (!doc && shortAddress !== cleanAddress) {
       doc = await kakaoSearch(shortAddress)
     }
-  } catch {
+  } catch (e) {
+    console.error('[geocode] fetch error:', e)
     return { success: false, error: '지오코딩 요청에 실패했습니다' }
   }
 
