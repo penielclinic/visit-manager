@@ -32,18 +32,31 @@ export async function geocodeHouseholdAction(
   if (!restKey) return { success: false, error: '지오코딩 API 키가 설정되지 않았습니다' }
   if (!address.trim()) return { success: false, error: '주소가 없습니다' }
 
-  const url = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`
-  let kakaoData: { documents?: { y: string; x: string }[] }
+  const headers = { Authorization: `KakaoAK ${restKey}` }
+  let doc: { y: string; x: string } | undefined
+
   try {
-    const res = await fetch(url, {
-      headers: { Authorization: `KakaoAK ${restKey}` },
-    })
-    kakaoData = await res.json()
+    // 1차: 주소 검색 API
+    const addrRes = await fetch(
+      `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`,
+      { headers }
+    )
+    const addrData: { documents?: { y: string; x: string }[] } = await addrRes.json()
+    doc = addrData.documents?.[0]
+
+    // 2차: 키워드 검색 API (주소 검색 실패 시 폴백)
+    if (!doc) {
+      const kwRes = await fetch(
+        `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(address)}`,
+        { headers }
+      )
+      const kwData: { documents?: { y: string; x: string }[] } = await kwRes.json()
+      doc = kwData.documents?.[0]
+    }
   } catch {
     return { success: false, error: '지오코딩 요청에 실패했습니다' }
   }
 
-  const doc = kakaoData.documents?.[0]
   if (!doc) return { success: false, error: '주소를 찾을 수 없습니다' }
 
   const lat = parseFloat(doc.y)
