@@ -37,39 +37,46 @@ export async function geocodeHouseholdAction(
   // 도로명 번지까지만 추출: (괄호) 이후 건물명·호수 제거
   const shortAddress = cleanAddress.replace(/\s*[\(（].*$/, '').trim()
 
-  console.log('[geocode] original:', address)
-  console.log('[geocode] clean:', cleanAddress)
-  console.log('[geocode] short:', shortAddress)
-  console.log('[geocode] key set:', !!restKey)
+  // 아파트 단지명 추출: ") 단지명 N호" 패턴에서 단지명 추출
+  // 예) "(청강리) 대동레미안센트럴시티 503호" → "대동레미안센트럴시티"
+  const buildingMatch = cleanAddress.match(/\)\s+([가-힣A-Za-z0-9]+(?:\s+[가-힣A-Za-z0-9]+)*?)(?:\s+\d+동)?(?:\s+\d+호)?\s*$/)
+  const buildingName = buildingMatch?.[1]?.trim()
 
   const headers = { Authorization: `KakaoAK ${restKey}` }
   let doc: { y: string; x: string } | undefined
 
-  async function kakaoSearch(query: string) {
-    const addrRes = await fetch(
+  async function kakaoAddrSearch(query: string) {
+    const res = await fetch(
       `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(query)}`,
       { headers }
     )
-    const addrData: { documents?: { y: string; x: string }[]; error_type?: string } = await addrRes.json()
-    console.log('[geocode] addr search result for:', query, '→ count:', addrData.documents?.length ?? 0, addrData.error_type ?? '')
-    if (addrData.documents?.[0]) return addrData.documents[0]
+    const data: { documents?: { y: string; x: string }[] } = await res.json()
+    return data.documents?.[0]
+  }
 
-    const kwRes = await fetch(
+  async function kakaoKeywordSearch(query: string) {
+    const res = await fetch(
       `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(query)}`,
       { headers }
     )
-    const kwData: { documents?: { y: string; x: string }[]; error_type?: string } = await kwRes.json()
-    console.log('[geocode] keyword search result for:', query, '→ count:', kwData.documents?.length ?? 0, kwData.error_type ?? '')
-    return kwData.documents?.[0]
+    const data: { documents?: { y: string; x: string }[] } = await res.json()
+    return data.documents?.[0]
   }
 
   try {
-    doc = await kakaoSearch(cleanAddress)
+    // 1차: 전체 주소 (주소 검색)
+    doc = await kakaoAddrSearch(cleanAddress)
+    // 2차: 전체 주소 (키워드 검색)
+    if (!doc) doc = await kakaoKeywordSearch(cleanAddress)
+    // 3차: 도로명 번지만 (건물명 제거)
     if (!doc && shortAddress !== cleanAddress) {
-      doc = await kakaoSearch(shortAddress)
+      doc = await kakaoAddrSearch(shortAddress)
+    }
+    // 4차: 아파트 단지명으로 키워드 검색
+    if (!doc && buildingName) {
+      doc = await kakaoKeywordSearch(buildingName)
     }
   } catch (e) {
-    console.error('[geocode] fetch error:', e)
     return { success: false, error: '지오코딩 요청에 실패했습니다' }
   }
 
