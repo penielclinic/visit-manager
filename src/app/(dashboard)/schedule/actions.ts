@@ -24,7 +24,7 @@ export async function createScheduleAction(
       scheduled_time: values.scheduled_time || null,
       visit_type: values.visit_type,
       status: values.status,
-      assigned_to: values.assigned_to || null,
+      assigned_to: values.assigned_to && values.assigned_to !== '__none__' ? values.assigned_to : null,
       memo: values.memo || null,
       visit_order: values.visit_order ? parseInt(values.visit_order) : null,
       created_by: user.id,
@@ -52,7 +52,7 @@ export async function updateScheduleAction(
       scheduled_time: values.scheduled_time || null,
       visit_type: values.visit_type,
       status: values.status,
-      assigned_to: values.assigned_to || null,
+      assigned_to: values.assigned_to && values.assigned_to !== '__none__' ? values.assigned_to : null,
       memo: values.memo || null,
       visit_order: values.visit_order ? parseInt(values.visit_order) : null,
     })
