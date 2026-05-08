@@ -32,13 +32,16 @@ export async function geocodeHouseholdAction(
   if (!restKey) return { success: false, error: '지오코딩 API 키가 설정되지 않았습니다' }
   if (!address.trim()) return { success: false, error: '주소가 없습니다' }
 
+  // 우편번호 제거: [12345] 또는 (12345) 패턴
+  const cleanAddress = address.replace(/^[\[(]\d{5}[\])]\s*/, '').trim()
+
   const headers = { Authorization: `KakaoAK ${restKey}` }
   let doc: { y: string; x: string } | undefined
 
   try {
     // 1차: 주소 검색 API
     const addrRes = await fetch(
-      `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`,
+      `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(cleanAddress)}`,
       { headers }
     )
     const addrData: { documents?: { y: string; x: string }[] } = await addrRes.json()
@@ -47,7 +50,7 @@ export async function geocodeHouseholdAction(
     // 2차: 키워드 검색 API (주소 검색 실패 시 폴백)
     if (!doc) {
       const kwRes = await fetch(
-        `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(address)}`,
+        `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(cleanAddress)}`,
         { headers }
       )
       const kwData: { documents?: { y: string; x: string }[] } = await kwRes.json()
