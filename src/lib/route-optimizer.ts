@@ -17,9 +17,17 @@ export function haversineDistance(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-/** 정렬된 경로의 총 이동 거리(m) */
-export function calcTotalDistance(nodes: RouteNode[]): number {
+/** 정렬된 경로의 총 이동 거리(m), 출발점(교회) 포함 가능 */
+export function calcTotalDistance(
+  nodes: RouteNode[],
+  startPoint?: { lat: number; lng: number }
+): number {
+  if (nodes.length === 0) return 0
   let total = 0
+  // 출발점 → 첫 번째 노드
+  if (startPoint) {
+    total += haversineDistance(startPoint.lat, startPoint.lng, nodes[0].lat, nodes[0].lng)
+  }
   for (let i = 0; i < nodes.length - 1; i++) {
     total += haversineDistance(
       nodes[i].lat,

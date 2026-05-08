@@ -16,7 +16,12 @@ import {
   calcTotalDistance,
 } from '@/lib/route-optimizer'
 import type { ScheduleWithCoords, RouteNode } from '@/types/routes'
-import { Wand2, Save, Loader2, MapPinOff } from 'lucide-react'
+import { Wand2, Save, Loader2, MapPinOff, Church } from 'lucide-react'
+
+const CHURCH_START = {
+  lat: parseFloat(process.env.NEXT_PUBLIC_CHURCH_LAT ?? '35.1631'),
+  lng: parseFloat(process.env.NEXT_PUBLIC_CHURCH_LNG ?? '129.1635'),
+}
 
 interface RouteOptimizerPanelProps {
   initialSchedules: ScheduleWithCoords[]
@@ -71,7 +76,7 @@ export function RouteOptimizerPanel({
   function handleOptimize() {
     const raw = schedulesToNodes(schedules)
     const optimized = nearestNeighborTSP(raw)
-    const dist = calcTotalDistance(optimized)
+    const dist = calcTotalDistance(optimized, CHURCH_START)
     setNodes(optimized)
     setTotalDist(dist)
     setSaveMsg('')
@@ -79,7 +84,7 @@ export function RouteOptimizerPanel({
   }
 
   function handleNodesChange(updated: RouteNode[]) {
-    const dist = calcTotalDistance(updated)
+    const dist = calcTotalDistance(updated, CHURCH_START)
     setNodes(updated)
     setTotalDist(dist)
     onNodesChange(updated)
@@ -213,10 +218,15 @@ export function RouteOptimizerPanel({
 
       {/* 거리 정보 */}
       {nodes.length > 0 && (
-        <p className="text-xs text-slate-500 text-center">
-          총 예상 이동 거리:{' '}
-          <strong className="text-slate-800">{formatDistance(totalDist)}</strong>
-        </p>
+        <div className="text-xs text-slate-500 text-center space-y-0.5">
+          <p className="flex items-center justify-center gap-1">
+            <Church className="w-3 h-3" />
+            <span>교회 출발 → 총 예상 이동 거리:</span>
+          </p>
+          <p>
+            <strong className="text-slate-800 text-sm">{formatDistance(totalDist)}</strong>
+          </p>
+        </div>
       )}
 
       {/* 경로 목록 (드래그 정렬) */}

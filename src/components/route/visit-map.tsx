@@ -5,9 +5,49 @@ import { useKakaoMap } from './kakao-map-provider'
 import type { RouteNode } from '@/types/routes'
 import { MapPin } from 'lucide-react'
 
+const CHURCH = {
+  lat: parseFloat(process.env.NEXT_PUBLIC_CHURCH_LAT ?? '35.1631'),
+  lng: parseFloat(process.env.NEXT_PUBLIC_CHURCH_LNG ?? '129.1635'),
+  name: process.env.NEXT_PUBLIC_CHURCH_NAME ?? '교회',
+}
+
 interface VisitMapProps {
   nodes: RouteNode[]
   height?: string
+}
+
+// 교회 마커 오버레이 HTML
+function makeChurchOverlay(name: string) {
+  return `
+    <div style="
+      position:relative;
+      display:inline-flex;
+      flex-direction:column;
+      align-items:center;
+      cursor:default;
+    ">
+      <div style="
+        background:#dc2626;
+        color:#fff;
+        font-size:14px;
+        font-weight:700;
+        width:32px;height:32px;
+        border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        border:2px solid #fff;
+        box-shadow:0 2px 6px rgba(0,0,0,0.3);
+      ">✟</div>
+      <div style="
+        background:rgba(220,38,38,0.85);
+        color:#fff;
+        font-size:11px;
+        padding:2px 8px;
+        border-radius:4px;
+        margin-top:3px;
+        white-space:nowrap;
+      ">${name}</div>
+    </div>
+  `
 }
 
 // 순서 번호 오버레이 HTML
@@ -77,9 +117,23 @@ export function VisitMap({ nodes, height = '480px' }: VisitMapProps) {
     polylineRef.current?.setMap(null)
     polylineRef.current = null
 
-    if (nodes.length === 0) return
-
     const bounds = new kakao.maps.LatLngBounds()
+    const churchPos = new kakao.maps.LatLng(CHURCH.lat, CHURCH.lng)
+
+    // 교회 마커 항상 표시
+    bounds.extend(churchPos)
+    const churchOverlay = new kakao.maps.CustomOverlay({
+      position: churchPos,
+      content: makeChurchOverlay(CHURCH.name),
+      map,
+      yAnchor: 1,
+    })
+    overlaysRef.current.push(churchOverlay)
+
+    if (nodes.length === 0) {
+      map.setBounds(bounds, 60)
+      return
+    }
 
     nodes.forEach((node) => {
       const pos = new kakao.maps.LatLng(node.lat, node.lng)
@@ -94,17 +148,19 @@ export function VisitMap({ nodes, height = '480px' }: VisitMapProps) {
       overlaysRef.current.push(overlay)
     })
 
-    // 경로 폴리라인
-    if (nodes.length >= 2) {
-      polylineRef.current = new kakao.maps.Polyline({
-        path: nodes.map((n) => new kakao.maps.LatLng(n.lat, n.lng)),
-        strokeWeight: 3,
-        strokeColor: '#2563eb',
-        strokeOpacity: 0.7,
-        strokeStyle: 'solid',
-        map,
-      })
-    }
+    // 경로 폴리라인: 교회 → 첫 번째 노드 → ... → 마지막 노드
+    const pathPoints = [
+      churchPos,
+      ...nodes.map((n) => new kakao.maps.LatLng(n.lat, n.lng)),
+    ]
+    polylineRef.current = new kakao.maps.Polyline({
+      path: pathPoints,
+      strokeWeight: 3,
+      strokeColor: '#2563eb',
+      strokeOpacity: 0.7,
+      strokeStyle: 'solid',
+      map,
+    })
 
     map.setBounds(bounds, 60)
   }, [isLoaded, nodes])
