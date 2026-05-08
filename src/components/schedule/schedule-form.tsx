@@ -24,6 +24,41 @@ import {
 import type { ScheduleFormValues, Profile } from '@/types/schedules'
 import type { Enums } from '@/types/database.types'
 
+// 10분 간격 시간 선택 컴포넌트
+function TimeSelect({ defaultValue }: { defaultValue?: string }) {
+  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
+  const minutes = ['00', '10', '20', '30', '40', '50']
+
+  const [h, m] = defaultValue?.split(':') ?? ['', '']
+
+  return (
+    <div className="flex gap-2 items-center">
+      <Select name="scheduled_time_h" defaultValue={h || '__none__'}>
+        <SelectTrigger className="flex-1">
+          <SelectValue placeholder="시" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__none__">-</SelectItem>
+          {hours.map((hh) => (
+            <SelectItem key={hh} value={hh}>{hh}시</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <span className="text-slate-400 flex-shrink-0">:</span>
+      <Select name="scheduled_time_m" defaultValue={m || '00'}>
+        <SelectTrigger className="flex-1">
+          <SelectValue placeholder="분" />
+        </SelectTrigger>
+        <SelectContent>
+          {minutes.map((mm) => (
+            <SelectItem key={mm} value={mm}>{mm}분</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+}
+
 interface ScheduleFormProps {
   mode: 'create' | 'edit'
   scheduleId?: string
@@ -50,7 +85,11 @@ export function ScheduleForm({
     const values: ScheduleFormValues = {
       household_id: fd.get('household_id') as string,
       scheduled_date: fd.get('scheduled_date') as string,
-      scheduled_time: fd.get('scheduled_time') as string,
+      scheduled_time: (() => {
+        const th = fd.get('scheduled_time_h') as string
+        const tm = fd.get('scheduled_time_m') as string
+        return th && th !== '__none__' ? `${th}:${tm}:00` : ''
+      })(),
       visit_type: fd.get('visit_type') as Enums<'visit_type'>,
       status: fd.get('status') as Enums<'visit_status'>,
       assigned_to: fd.get('assigned_to') as string,
@@ -110,13 +149,8 @@ export function ScheduleForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="scheduled_time">시간 (선택)</Label>
-          <Input
-            id="scheduled_time"
-            name="scheduled_time"
-            type="time"
-            defaultValue={defaultValues?.scheduled_time}
-          />
+          <Label>시간 (선택)</Label>
+          <TimeSelect defaultValue={defaultValues?.scheduled_time} />
         </div>
       </div>
 
