@@ -729,6 +729,10 @@ export type Database = {
         | "child"
         | "parent"
         | "sibling"
+        | "son_in_law"
+        | "daughter_in_law"
+        | "father_in_law"
+        | "mother_in_law"
         | "other"
       record_status: "draft" | "final"
       recording_status: "uploading" | "processing" | "completed" | "failed"
@@ -889,6 +893,10 @@ export const Constants = {
         "child",
         "parent",
         "sibling",
+        "son_in_law",
+        "daughter_in_law",
+        "father_in_law",
+        "mother_in_law",
         "other",
       ],
       record_status: ["draft", "final"],

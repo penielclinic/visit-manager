@@ -46,7 +46,11 @@ function parseRelation(raw: string): ParsedMember['relation'] {
   if (r === '본인') return 'head'
   if (['처', '남편', '배우자', '아내', '부인'].includes(r)) return 'spouse'
   if (['아들', '딸', '장남', '장녀', '차남', '차녀', '막내', '자녀'].includes(r)) return 'child'
-  if (['부', '모', '아버지', '어머니', '아버님', '어머님', '장모', '시부', '시모', '장인'].includes(r)) return 'parent'
+  if (['부', '모', '아버지', '어머니', '아버님', '어머님', '시부', '시모'].includes(r)) return 'parent'
+  if (['장인', '빙부'].includes(r)) return 'father_in_law'
+  if (['장모', '빙모'].includes(r)) return 'mother_in_law'
+  if (['사위'].includes(r)) return 'son_in_law'
+  if (['며느리'].includes(r)) return 'daughter_in_law'
   if (['형', '오빠', '남동생', '언니', '누나', '여동생', '동생'].includes(r)) return 'sibling'
   return 'other'
 }
@@ -193,6 +197,10 @@ const RELATION_LABEL: Record<ParsedMember['relation'], string> = {
   child: '자녀',
   parent: '부모',
   sibling: '형제',
+  son_in_law: '사위',
+  daughter_in_law: '며느리',
+  father_in_law: '장인',
+  mother_in_law: '장모',
   other: '기타',
 }
 

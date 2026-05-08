@@ -65,7 +65,7 @@ export type ActionResult<T = void> =
 
 export type ParsedMember = {
   full_name: string
-  relation: 'head' | 'spouse' | 'child' | 'parent' | 'sibling' | 'other'
+  relation: 'head' | 'spouse' | 'child' | 'parent' | 'sibling' | 'son_in_law' | 'daughter_in_law' | 'father_in_law' | 'mother_in_law' | 'other'
   gender: 'male' | 'female' | 'undisclosed'
   birth_year: number | null
   phone: string | null

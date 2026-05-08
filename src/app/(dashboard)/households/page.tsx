@@ -39,9 +39,17 @@ async function getHouseholds(searchParams: PageProps['searchParams']) {
     .order('household_name')
 
   if (searchParams.q) {
-    query = query.or(
-      `household_name.ilike.%${searchParams.q}%,representative_name.ilike.%${searchParams.q}%`
-    )
+    const supabaseM = createClient()
+    const { data: memberMatches } = await supabaseM
+      .from('household_members')
+      .select('household_id')
+      .ilike('full_name', `%${searchParams.q}%`)
+      .is('deleted_at', null)
+    const memberIds = (memberMatches ?? []).map((m) => m.household_id)
+
+    const orFilter = [`household_name.ilike.%${searchParams.q}%`, `representative_name.ilike.%${searchParams.q}%`]
+    if (memberIds.length > 0) orFilter.push(`id.in.(${memberIds.join(',')})`)
+    query = query.or(orFilter.join(','))
   }
   if (searchParams.cell) {
     query = query.eq('cell_id', searchParams.cell)

@@ -21,6 +21,10 @@ const RELATION_LABELS: Record<Enums<'member_relation'>, string> = {
   child: '자녀',
   parent: '부모',
   sibling: '형제/자매',
+  son_in_law: '사위',
+  daughter_in_law: '며느리',
+  father_in_law: '장인',
+  mother_in_law: '장모',
   other: '기타',
 }
 
