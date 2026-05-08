@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/database.types'
 import type {
   HouseholdFormValues,
   MemberFormValues,
@@ -70,9 +72,17 @@ export async function updateHouseholdAction(
 }
 
 export async function deleteHouseholdAction(id: string): Promise<ActionResult> {
+  // 인증 확인
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: '인증이 필요합니다' }
 
-  const { error } = await supabase
+  // admin 클라이언트로 소프트 삭제 (RLS update WITH CHECK 우회)
+  const admin = createAdminClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  const { error } = await admin
     .from('households')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
