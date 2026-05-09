@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { requireSeniorPastor } from '@/lib/auth'
 import type { ActionResult } from '@/types/households'
-import type { Enums } from '@/types/database.types'
+import type { Database, Enums } from '@/types/database.types'
 
 export interface RecordFormValues {
   household_id: string
@@ -108,11 +109,12 @@ export async function deleteRecordAction(id: string): Promise<ActionResult<void>
   const err = await requireSeniorPastor()
   if (err) return { success: false, error: err }
 
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { success: false, error: '인증이 필요합니다' }
-
-  const { error } = await supabase
+  // RLS records_update 가 senior_pastor를 허용하지 않으므로 admin 클라이언트 사용
+  const admin = createAdminClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  const { error } = await admin
     .from('visit_records')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
@@ -128,9 +130,12 @@ export async function trashRecordAction(id: string): Promise<ActionResult<void>>
   const err = await requireSeniorPastor()
   if (err) return { success: false, error: err }
 
-  const supabase = createClient()
-
-  const { error } = await supabase
+  // RLS records_update 가 senior_pastor를 허용하지 않으므로 admin 클라이언트 사용
+  const admin = createAdminClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  const { error } = await admin
     .from('visit_records')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
