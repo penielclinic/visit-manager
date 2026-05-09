@@ -105,6 +105,13 @@ export function VisitMap({ nodes, height = '480px' }: VisitMapProps) {
         level: 5,
       })
     }
+
+    // 컨테이너 크기 변경(전체화면 토글 등) 시 지도 자동 재레이아웃
+    const observer = new ResizeObserver(() => {
+      mapRef.current?.relayout()
+    })
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
   }, [isLoaded]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

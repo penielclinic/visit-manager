@@ -10,6 +10,7 @@ declare namespace kakao.maps {
     setBounds(bounds: LatLngBounds, padding?: number): void
     setLevel(level: number): void
     getLevel(): number
+    relayout(): void
   }
 
   class LatLng {
