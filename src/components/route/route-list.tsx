@@ -18,11 +18,12 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { RouteNode } from '@/types/routes'
-import { GripVertical, MapPin } from 'lucide-react'
+import { GripVertical, MapPin, Church, ArrowDown } from 'lucide-react'
 import { GeocodeStatusBadge } from './geocode-status-badge'
 
 interface RouteListProps {
   nodes: RouteNode[]
+  segmentDists?: number[]
   allSchedules: {
     id: string
     householdId: string
@@ -35,11 +36,25 @@ interface RouteListProps {
   onGeocode?: (householdId: string, lat: number, lng: number) => void
 }
 
-function SortableItem({
-  node,
-}: {
-  node: RouteNode
-}) {
+function formatDist(m: number) {
+  if (m < 1000) return `${m}m`
+  return `${(m / 1000).toFixed(1)}km`
+}
+
+function DistanceConnector({ dist }: { dist: number }) {
+  return (
+    <div className="flex flex-col items-center py-0.5 select-none pointer-events-none">
+      <div className="w-px h-2 bg-slate-200" />
+      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+        <ArrowDown className="w-3 h-3" />
+        <span className="text-xs font-medium">{formatDist(dist)}</span>
+      </div>
+      <div className="w-px h-2 bg-slate-200" />
+    </div>
+  )
+}
+
+function SortableItem({ node }: { node: RouteNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: node.scheduleId })
 
@@ -75,7 +90,7 @@ function SortableItem({
   )
 }
 
-export function RouteList({ nodes, allSchedules, onChange, onGeocode }: RouteListProps) {
+export function RouteList({ nodes, segmentDists, allSchedules, onChange, onGeocode }: RouteListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -96,8 +111,8 @@ export function RouteList({ nodes, allSchedules, onChange, onGeocode }: RouteLis
     onChange(reordered)
   }
 
-  // 좌표 없는 일정 목록
   const noCoords = allSchedules.filter((s) => !s.hasCoords)
+  const hasSegs = segmentDists && segmentDists.length > 0
 
   return (
     <div className="space-y-3">
@@ -132,22 +147,40 @@ export function RouteList({ nodes, allSchedules, onChange, onGeocode }: RouteLis
           </p>
         </div>
       ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={nodes.map((n) => n.scheduleId)}
-            strategy={verticalListSortingStrategy}
+        <div className="space-y-0">
+          {/* 교회 출발점 */}
+          {hasSegs && (
+            <>
+              <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
+                <Church className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <span className="text-sm font-medium text-red-700 whitespace-nowrap">교회 출발</span>
+              </div>
+              <DistanceConnector dist={segmentDists![0]} />
+            </>
+          )}
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            <div className="space-y-1.5">
-              {nodes.map((node) => (
-                <SortableItem key={node.scheduleId} node={node} />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+            <SortableContext
+              items={nodes.map((n) => n.scheduleId)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-0">
+                {nodes.map((node, idx) => (
+                  <div key={node.scheduleId}>
+                    <SortableItem node={node} />
+                    {hasSegs && idx < nodes.length - 1 && (
+                      <DistanceConnector dist={segmentDists![idx + 1]} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </div>
       )}
     </div>
   )

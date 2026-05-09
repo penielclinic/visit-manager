@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { monthStartKST, monthsAgoStartKST } from '@/lib/date'
 import { MonthlyVisitsChart } from '@/components/analytics/monthly-visits-chart'
 import { DistrictVisitsChart } from '@/components/analytics/district-visits-chart'
 import { VisitTypePieChart } from '@/components/analytics/visit-type-pie-chart'
@@ -18,10 +19,7 @@ export const metadata: Metadata = {
 async function getMonthlyVisits(): Promise<MonthlyVisitData[]> {
   const supabase = createClient()
 
-  const sixMonthsAgo = new Date()
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5)
-  sixMonthsAgo.setDate(1)
-  const from = sixMonthsAgo.toISOString().split('T')[0]
+  const from = monthsAgoStartKST(5)
 
   // visit_schedules.status가 아닌 visit_records.status = 'final' 기준으로 집계
   // (schedules_update RLS가 senior_pastor를 차단하여 completed 상태 업데이트 불가)
@@ -34,9 +32,7 @@ async function getMonthlyVisits(): Promise<MonthlyVisitData[]> {
 
   const map = new Map<string, number>()
   for (let i = 5; i >= 0; i--) {
-    const d = new Date()
-    d.setMonth(d.getMonth() - i)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    const key = monthsAgoStartKST(i).slice(0, 7)
     map.set(key, 0)
   }
   ;(data ?? []).forEach(({ visited_at }) => {
@@ -53,9 +49,7 @@ async function getMonthlyVisits(): Promise<MonthlyVisitData[]> {
 
 async function getDistrictVisits(): Promise<DistrictVisitData[]> {
   const supabase = createClient()
-  const monthStart = new Date()
-  monthStart.setDate(1)
-  const from = monthStart.toISOString().split('T')[0]
+  const from = monthStartKST()
 
   const [{ data: households }, { data: completed }] = await Promise.all([
     supabase
@@ -134,9 +128,7 @@ async function getVisitTypeDistribution(): Promise<VisitTypeData[]> {
 
 async function getUnvisitedHouseholds(): Promise<UnvisitedHousehold[]> {
   const supabase = createClient()
-  const monthStart = new Date()
-  monthStart.setDate(1)
-  const from = monthStart.toISOString().split('T')[0]
+  const from = monthStartKST()
 
   const [{ data: households }, { data: completed }] = await Promise.all([
     supabase

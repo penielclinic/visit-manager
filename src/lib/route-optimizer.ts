@@ -17,6 +17,34 @@ export function haversineDistance(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+/**
+ * 단계별 이동 거리(m) 배열 반환
+ * index 0: 출발점(교회) → 첫 번째 노드
+ * index 1: 1번 → 2번, index 2: 2번 → 3번, ...
+ */
+export function calcSegmentDistances(
+  nodes: RouteNode[],
+  startPoint?: { lat: number; lng: number }
+): number[] {
+  if (nodes.length === 0) return []
+  const segs: number[] = []
+  if (startPoint) {
+    segs.push(
+      Math.round(
+        haversineDistance(startPoint.lat, startPoint.lng, nodes[0].lat, nodes[0].lng)
+      )
+    )
+  }
+  for (let i = 0; i < nodes.length - 1; i++) {
+    segs.push(
+      Math.round(
+        haversineDistance(nodes[i].lat, nodes[i].lng, nodes[i + 1].lat, nodes[i + 1].lng)
+      )
+    )
+  }
+  return segs
+}
+
 /** 정렬된 경로의 총 이동 거리(m), 출발점(교회) 포함 가능 */
 export function calcTotalDistance(
   nodes: RouteNode[],

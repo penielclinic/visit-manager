@@ -1,14 +1,16 @@
 import { KakaoMapProvider } from '@/components/route/kakao-map-provider'
 import { RoutePageClient } from './route-page-client'
 import { getSchedulesForDate } from './actions'
+import { todayKST } from '@/lib/date'
 
 interface PageProps {
-  searchParams: { date?: string }
+  searchParams: Promise<{ date?: string }>
 }
 
 export default async function RoutePage({ searchParams }: PageProps) {
-  const today = new Date().toISOString().split('T')[0]
-  const date = searchParams.date ?? today
+  const today = todayKST()
+  const { date: dateParam } = await searchParams
+  const date = dateParam ?? today
 
   const schedules = await getSchedulesForDate(date)
 

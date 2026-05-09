@@ -58,7 +58,8 @@ export function RecordForm({
     record?.visit_type ?? 'regular'
   )
   const [visitedAt, setVisitedAt] = useState(
-    record?.visited_at?.slice(0, 10) ?? new Date().toISOString().slice(0, 10)
+    record?.visited_at?.slice(0, 10) ??
+      new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' })
   )
   const [content, setContent] = useState(record?.content ?? '')
   const [prayerNotes, setPrayerNotes] = useState(record?.prayer_notes ?? '')

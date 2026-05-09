@@ -13,6 +13,7 @@ import {
 import {
   schedulesToNodes,
   calcTotalDistance,
+  calcSegmentDistances,
 } from '@/lib/route-optimizer'
 import type { ScheduleWithCoords, RouteNode } from '@/types/routes'
 import { Wand2, Save, Loader2, MapPinOff, Church } from 'lucide-react'
@@ -42,6 +43,7 @@ export function RouteOptimizerPanel({
   const [schedules, setSchedules] = useState(initialSchedules)
   const [nodes, setNodes] = useState<RouteNode[]>([])
   const [totalDist, setTotalDist] = useState(0)
+  const [segmentDists, setSegmentDists] = useState<number[]>([])
   const [saveMsg, setSaveMsg] = useState('')
 
   const [datePending, startDateTransition] = useTransition()
@@ -80,16 +82,20 @@ export function RouteOptimizerPanel({
     })
     const nodes = schedulesToNodes(sorted)
     const dist = calcTotalDistance(nodes, CHURCH_START)
+    const segs = calcSegmentDistances(nodes, CHURCH_START)
     setNodes(nodes)
     setTotalDist(dist)
+    setSegmentDists(segs)
     setSaveMsg('')
     onNodesChange(nodes)
   }
 
   function handleNodesChange(updated: RouteNode[]) {
     const dist = calcTotalDistance(updated, CHURCH_START)
+    const segs = calcSegmentDistances(updated, CHURCH_START)
     setNodes(updated)
     setTotalDist(dist)
+    setSegmentDists(segs)
     onNodesChange(updated)
   }
 
@@ -235,6 +241,7 @@ export function RouteOptimizerPanel({
       {/* 경로 목록 (드래그 정렬) */}
       <RouteList
         nodes={nodes}
+        segmentDists={segmentDists}
         allSchedules={allScheduleItems}
         onChange={handleNodesChange}
         onGeocode={handleGeocode}

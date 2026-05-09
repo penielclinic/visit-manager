@@ -16,6 +16,7 @@ import {
   BookOpen,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { todayKST, monthStartKST, daysFromNowKST } from '@/lib/date'
 import type { ScheduleWithRelations } from '@/types/schedules'
 import { VISIT_TYPE_LABELS } from '@/types/schedules'
 import { ScheduleStatusBadge } from '@/components/schedule/schedule-status-badge'
@@ -29,8 +30,8 @@ export const metadata: Metadata = {
 
 async function getDashboardStats() {
   const supabase = createClient()
-  const today = new Date().toISOString().split('T')[0]
-  const monthStart = today.slice(0, 8) + '01'
+  const today = todayKST()
+  const monthStart = monthStartKST()
 
   const [
     { count: totalHouseholds },
@@ -80,10 +81,8 @@ async function getRecentRecords(): Promise<RecordWithRelations[]> {
 
 async function getUpcomingSchedules(): Promise<ScheduleWithRelations[]> {
   const supabase = createClient()
-  const today = new Date().toISOString().split('T')[0]
-  const in7days = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split('T')[0]
+  const today = todayKST()
+  const in7days = daysFromNowKST(7)
 
   const { data } = await supabase
     .from('visit_schedules')
