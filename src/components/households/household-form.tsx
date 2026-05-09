@@ -16,12 +16,14 @@ import {
 import {
   createHouseholdAction,
   updateHouseholdAction,
+  createMemberAction,
   createDistrictAction,
   createCellAction,
 } from '@/app/(dashboard)/households/actions'
 import type { HouseholdFormValues, DistrictWithCells } from '@/types/households'
 import type { Enums } from '@/types/database.types'
-import { Plus } from 'lucide-react'
+import { Plus, Trash2, Star } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 
 interface HouseholdFormProps {
   mode: 'create' | 'edit'
@@ -35,6 +37,55 @@ const STATUS_LABELS: Record<Enums<'household_status'>, string> = {
   inactive: '비활성',
   moved: '이사',
   withdrawn: '탈퇴',
+}
+
+const RELATION_LABELS: Record<Enums<'member_relation'>, string> = {
+  head: '가장',
+  spouse: '배우자',
+  child: '자녀',
+  parent: '부모',
+  sibling: '형제/자매',
+  son_in_law: '사위',
+  daughter_in_law: '며느리',
+  father_in_law: '장인',
+  mother_in_law: '장모',
+  other: '기타',
+}
+
+const GENDER_LABELS: Record<Enums<'gender'>, string> = {
+  male: '남성',
+  female: '여성',
+  undisclosed: '미공개',
+}
+
+const FAITH_STATUS_LABELS: Record<Enums<'faith_status'>, string> = {
+  registered: '등록',
+  unbaptized: '미세례',
+  baptized: '세례',
+  confirmed: '입교',
+  long_absent: '장기결석',
+  withdrawn: '탈퇴',
+}
+
+type InlineMember = {
+  uid: string
+  full_name: string
+  relation: Enums<'member_relation'>
+  gender: Enums<'gender'>
+  birth_year: string
+  phone: string
+  faith_status: Enums<'faith_status'>
+  is_primary: boolean
+}
+
+const DEFAULT_NEW_MEMBER: Omit<InlineMember, 'uid'> = {
+  full_name: '',
+  relation: 'head',
+  gender: 'undisclosed',
+  birth_year: '',
+  phone: '',
+  faith_status: 'registered',
+  is_primary: false,
 }
 
 export function HouseholdForm({
@@ -120,6 +171,22 @@ export function HouseholdForm({
     })
   }
 
+  // 가족 구성원 (create 모드에서만)
+  const [members, setMembers] = useState<InlineMember[]>([])
+  const [addingMember, setAddingMember] = useState(false)
+  const [newMember, setNewMember] = useState<Omit<InlineMember, 'uid'>>({ ...DEFAULT_NEW_MEMBER })
+
+  function handleAddMember() {
+    if (!newMember.full_name.trim()) return
+    setMembers((prev) => [...prev, { ...newMember, uid: crypto.randomUUID() }])
+    setNewMember({ ...DEFAULT_NEW_MEMBER })
+    setAddingMember(false)
+  }
+
+  function handleRemoveMember(uid: string) {
+    setMembers((prev) => prev.filter((m) => m.uid !== uid))
+  }
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError('')
@@ -147,6 +214,18 @@ export function HouseholdForm({
         return
       }
       if (mode === 'create' && result.success && result.data) {
+        // 구성원 등록
+        for (const m of members) {
+          await createMemberAction(result.data.id, {
+            full_name: m.full_name,
+            relation: m.relation,
+            gender: m.gender,
+            birth_year: m.birth_year,
+            phone: m.phone,
+            faith_status: m.faith_status,
+            is_primary: m.is_primary,
+          })
+        }
         router.push(`/households/${result.data.id}`)
       } else {
         router.push(`/households/${householdId}`)
@@ -369,6 +448,177 @@ export function HouseholdForm({
           placeholder="특이사항, 방문 시 유의사항 등"
         />
       </div>
+
+      {/* 가족 구성원 (등록 모드에서만) */}
+      {mode === 'create' && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label>가족 구성원</Label>
+            {!addingMember && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setAddingMember(true)}
+              >
+                <Plus className="w-3.5 h-3.5 mr-1" />
+                추가
+              </Button>
+            )}
+          </div>
+
+          {/* 추가된 구성원 목록 */}
+          {members.length > 0 && (
+            <div className="border border-slate-200 rounded-lg divide-y divide-slate-100">
+              {members.map((m) => (
+                <div key={m.uid} className="flex items-center justify-between px-3 py-2.5">
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
+                    {m.is_primary && <Star className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />}
+                    <span className="font-medium text-sm whitespace-nowrap">{m.full_name}</span>
+                    <Badge variant="outline" className="text-xs whitespace-nowrap">
+                      {RELATION_LABELS[m.relation]}
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs whitespace-nowrap">
+                      {FAITH_STATUS_LABELS[m.faith_status]}
+                    </Badge>
+                    {m.birth_year && (
+                      <span className="text-xs text-slate-400 whitespace-nowrap">{m.birth_year}년생</span>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    className="w-7 h-7 text-red-400 hover:text-red-600 flex-shrink-0 ml-2"
+                    onClick={() => handleRemoveMember(m.uid)}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 구성원 추가 인라인 폼 */}
+          {addingMember && (
+            <div className="border border-slate-200 rounded-lg p-4 space-y-3 bg-slate-50">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5 col-span-2">
+                  <Label className="text-xs">이름 *</Label>
+                  <Input
+                    value={newMember.full_name}
+                    onChange={(e) => setNewMember((p) => ({ ...p, full_name: e.target.value }))}
+                    placeholder="홍길동"
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">관계</Label>
+                  <Select
+                    value={newMember.relation}
+                    onValueChange={(v) => setNewMember((p) => ({ ...p, relation: v as Enums<'member_relation'> }))}
+                  >
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(RELATION_LABELS) as Enums<'member_relation'>[]).map((r) => (
+                        <SelectItem key={r} value={r}>{RELATION_LABELS[r]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">성별</Label>
+                  <Select
+                    value={newMember.gender}
+                    onValueChange={(v) => setNewMember((p) => ({ ...p, gender: v as Enums<'gender'> }))}
+                  >
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(GENDER_LABELS) as Enums<'gender'>[]).map((g) => (
+                        <SelectItem key={g} value={g}>{GENDER_LABELS[g]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">출생연도</Label>
+                  <Input
+                    type="number"
+                    min={1900}
+                    max={new Date().getFullYear()}
+                    value={newMember.birth_year}
+                    onChange={(e) => setNewMember((p) => ({ ...p, birth_year: e.target.value }))}
+                    placeholder="예: 1980"
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">전화번호</Label>
+                  <Input
+                    value={newMember.phone}
+                    onChange={(e) => setNewMember((p) => ({ ...p, phone: e.target.value }))}
+                    placeholder="010-0000-0000"
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">신앙 상태</Label>
+                  <Select
+                    value={newMember.faith_status}
+                    onValueChange={(v) => setNewMember((p) => ({ ...p, faith_status: v as Enums<'faith_status'> }))}
+                  >
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(FAITH_STATUS_LABELS) as Enums<'faith_status'>[]).map((f) => (
+                        <SelectItem key={f} value={f}>{FAITH_STATUS_LABELS[f]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">대표 구성원</Label>
+                  <Select
+                    value={newMember.is_primary ? 'true' : 'false'}
+                    onValueChange={(v) => setNewMember((p) => ({ ...p, is_primary: v === 'true' }))}
+                  >
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">예</SelectItem>
+                      <SelectItem value="false">아니오</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleAddMember}
+                  disabled={!newMember.full_name.trim()}
+                >
+                  추가
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => { setAddingMember(false); setNewMember({ ...DEFAULT_NEW_MEMBER }) }}
+                >
+                  취소
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {error && (
         <p className="text-sm text-red-500" style={{ wordBreak: 'keep-all' }}>

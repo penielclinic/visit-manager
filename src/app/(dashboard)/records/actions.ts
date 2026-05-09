@@ -123,6 +123,24 @@ export async function deleteRecordAction(id: string): Promise<ActionResult<void>
   redirect('/records')
 }
 
+// 테이블에서 바로 휴지통으로 이동 (redirect 없이)
+export async function trashRecordAction(id: string): Promise<ActionResult<void>> {
+  const err = await requireSeniorPastor()
+  if (err) return { success: false, error: err }
+
+  const supabase = createClient()
+
+  const { error } = await supabase
+    .from('visit_records')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath('/records')
+  return { success: true, data: undefined }
+}
+
 export async function restoreRecordAction(
   id: string
 ): Promise<ActionResult<void>> {

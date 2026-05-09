@@ -49,8 +49,20 @@ async function getRecords(filters: PageProps['searchParams']): Promise<RecordWit
   return (data ?? []) as unknown as RecordWithRelations[]
 }
 
+async function getCurrentUserRole() {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  return data?.role ?? null
+}
+
 export default async function RecordsPage({ searchParams }: PageProps) {
-  const records = await getRecords(searchParams)
+  const [records, role] = await Promise.all([
+    getRecords(searchParams),
+    getCurrentUserRole(),
+  ])
+  const isSeniorPastor = role === 'senior_pastor'
 
   return (
     <div className="flex flex-col gap-4">
@@ -62,12 +74,14 @@ export default async function RecordsPage({ searchParams }: PageProps) {
           </p>
         </div>
         <div className="flex gap-2 self-start sm:self-auto">
-          <Link href="/records/trash">
-            <Button variant="outline" size="sm">
-              <Trash2 className="w-4 h-4 mr-2" />
-              휴지통
-            </Button>
-          </Link>
+          {isSeniorPastor && (
+            <Link href="/records/trash">
+              <Button variant="outline" size="sm">
+                <Trash2 className="w-4 h-4 mr-2" />
+                휴지통
+              </Button>
+            </Link>
+          )}
           <Link href="/records/new">
             <Button size="sm">
               <Plus className="w-4 h-4 mr-2" />
@@ -85,7 +99,7 @@ export default async function RecordsPage({ searchParams }: PageProps) {
         <div className="px-4 py-2 border-b border-slate-100 text-sm text-slate-500">
           총 <strong className="text-slate-800">{records.length}</strong>건
         </div>
-        <RecordTable records={records} />
+        <RecordTable records={records} isSeniorPastor={isSeniorPastor} />
       </div>
     </div>
   )

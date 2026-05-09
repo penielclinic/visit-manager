@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   Table,
@@ -10,22 +11,37 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
 import { RecordStatusBadge } from './record-status-badge'
 import { RecordViewDialog } from './record-view-dialog'
 import { Badge } from '@/components/ui/badge'
+import { Trash2 } from 'lucide-react'
 import { VISIT_TYPE_LABELS } from '@/types/records'
+import { trashRecordAction } from '@/app/(dashboard)/records/actions'
 import type { RecordWithRelations } from '@/types/records'
 
 interface RecordTableProps {
   records: RecordWithRelations[]
+  isSeniorPastor?: boolean
 }
 
 function formatDate(iso: string) {
   return iso.slice(0, 10)
 }
 
-export function RecordTable({ records }: RecordTableProps) {
+export function RecordTable({ records, isSeniorPastor = false }: RecordTableProps) {
   const [selected, setSelected] = useState<RecordWithRelations | null>(null)
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
+
+  function handleTrash(e: React.MouseEvent, id: string) {
+    e.stopPropagation()
+    if (!confirm('이 심방 기록을 휴지통으로 이동하시겠습니까?')) return
+    startTransition(async () => {
+      await trashRecordAction(id)
+      router.refresh()
+    })
+  }
 
   if (records.length === 0) {
     return (
@@ -47,6 +63,7 @@ export function RecordTable({ records }: RecordTableProps) {
             <TableHead>심방 유형</TableHead>
             <TableHead>기록자</TableHead>
             <TableHead>상태</TableHead>
+            {isSeniorPastor && <TableHead className="w-12" />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -94,6 +111,22 @@ export function RecordTable({ records }: RecordTableProps) {
               <TableCell>
                 <RecordStatusBadge status={r.status} />
               </TableCell>
+              {isSeniorPastor && (
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  {r.status === 'final' && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="w-7 h-7 text-slate-400 hover:text-red-500"
+                      onClick={(e) => handleTrash(e, r.id)}
+                      disabled={isPending}
+                      title="휴지통으로 이동"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
