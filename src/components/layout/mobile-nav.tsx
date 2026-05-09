@@ -3,13 +3,18 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { navItems } from './sidebar'
 
-export function MobileNav() {
+interface MobileNavProps {
+  userRole?: string
+}
+
+export function MobileNav({ userRole }: MobileNavProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const isSeniorPastor = userRole === 'senior_pastor'
 
   return (
     <>
@@ -77,6 +82,21 @@ export function MobileNav() {
               </Link>
             )
           })}
+          {isSeniorPastor && (
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                pathname.startsWith('/admin')
+                  ? 'bg-purple-50 text-purple-700'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              )}
+            >
+              <ShieldCheck className="w-4 h-4 flex-shrink-0" />
+              <span className="whitespace-nowrap">관리자 설정</span>
+            </Link>
+          )}
         </nav>
       </div>
     </>

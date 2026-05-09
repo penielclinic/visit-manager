@@ -10,6 +10,7 @@ import {
   MapPin,
   BookOpen,
   BarChart3,
+  ShieldCheck,
 } from 'lucide-react'
 
 export const navItems = [
@@ -57,8 +58,13 @@ export const navItems = [
   },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  userRole?: string
+}
+
+export function Sidebar({ userRole }: SidebarProps) {
   const pathname = usePathname()
+  const isSeniorPastor = userRole === 'senior_pastor'
 
   return (
     <aside className="hidden md:flex w-60 flex-shrink-0 bg-white border-r border-slate-200 flex-col">
@@ -105,6 +111,22 @@ export function Sidebar() {
             </Link>
           )
         })}
+
+        {/* 관리자 메뉴 — 담임목사만 표시 */}
+        {isSeniorPastor && (
+          <Link
+            href="/admin"
+            className={cn(
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+              pathname.startsWith('/admin')
+                ? 'bg-purple-50 text-purple-700'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            )}
+          >
+            <ShieldCheck className="w-4 h-4 flex-shrink-0" />
+            <span className="whitespace-nowrap">관리자 설정</span>
+          </Link>
+        )}
       </nav>
 
       {/* 하단 */}

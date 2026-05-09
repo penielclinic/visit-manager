@@ -9,9 +9,10 @@ import { MobileNav } from './mobile-nav'
 
 interface HeaderProps {
   user: User
+  userRole?: string
 }
 
-export function Header({ user }: HeaderProps) {
+export function Header({ user, userRole }: HeaderProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -27,7 +28,7 @@ export function Header({ user }: HeaderProps) {
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 gap-3 flex-shrink-0">
-      <MobileNav />
+      <MobileNav userRole={userRole} />
       <div className="flex items-center gap-2 ml-auto">
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
