@@ -23,12 +23,14 @@ async function getMonthlyVisits(): Promise<MonthlyVisitData[]> {
   sixMonthsAgo.setDate(1)
   const from = sixMonthsAgo.toISOString().split('T')[0]
 
+  // visit_schedules.status가 아닌 visit_records.status = 'final' 기준으로 집계
+  // (schedules_update RLS가 senior_pastor를 차단하여 completed 상태 업데이트 불가)
   const { data } = await supabase
-    .from('visit_schedules')
-    .select('scheduled_date')
+    .from('visit_records')
+    .select('visited_at')
     .is('deleted_at', null)
-    .eq('status', 'completed')
-    .gte('scheduled_date', from)
+    .eq('status', 'final')
+    .gte('visited_at', from)
 
   const map = new Map<string, number>()
   for (let i = 5; i >= 0; i--) {
@@ -37,8 +39,8 @@ async function getMonthlyVisits(): Promise<MonthlyVisitData[]> {
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
     map.set(key, 0)
   }
-  ;(data ?? []).forEach(({ scheduled_date }) => {
-    const key = scheduled_date.slice(0, 7)
+  ;(data ?? []).forEach(({ visited_at }) => {
+    const key = visited_at.slice(0, 7)
     if (map.has(key)) map.set(key, (map.get(key) ?? 0) + 1)
   })
 
@@ -61,12 +63,13 @@ async function getDistrictVisits(): Promise<DistrictVisitData[]> {
       .select('id, cells(name, districts(name))')
       .is('deleted_at', null)
       .eq('status', 'active'),
+    // visit_records.status = 'final' 기준으로 집계
     supabase
-      .from('visit_schedules')
+      .from('visit_records')
       .select('household_id')
       .is('deleted_at', null)
-      .eq('status', 'completed')
-      .gte('scheduled_date', from),
+      .eq('status', 'final')
+      .gte('visited_at', from),
   ])
 
   const completedSet = new Set((completed ?? []).map((r) => r.household_id))
@@ -95,10 +98,10 @@ async function getDistrictVisits(): Promise<DistrictVisitData[]> {
 async function getVisitTypeDistribution(): Promise<VisitTypeData[]> {
   const supabase = createClient()
   const { data } = await supabase
-    .from('visit_schedules')
+    .from('visit_records')
     .select('visit_type')
     .is('deleted_at', null)
-    .eq('status', 'completed')
+    .eq('status', 'final')
 
   const countMap: Record<string, number> = {
     regular: 0,
