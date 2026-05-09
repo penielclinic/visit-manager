@@ -23,7 +23,13 @@ export async function createHouseholdAction(
   } = await supabase.auth.getUser()
   if (!user) return { success: false, error: '인증이 필요합니다' }
 
-  const { data, error } = await supabase
+  // households_select의 can_access_household가 member 역할을 차단해
+  // INSERT...RETURNING이 RLS 위반으로 처리되므로 admin 클라이언트 사용
+  const admin = createAdminClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  const { data, error } = await admin
     .from('households')
     .insert({
       cell_id: values.cell_id,
@@ -98,8 +104,15 @@ export async function createMemberAction(
   values: MemberFormValues
 ): Promise<ActionResult<{ id: string }>> {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: '인증이 필요합니다' }
 
-  const { data, error } = await supabase
+  // members_select의 can_access_household가 member 역할을 차단하므로 admin 클라이언트 사용
+  const admin = createAdminClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  const { data, error } = await admin
     .from('household_members')
     .insert({
       household_id: householdId,
