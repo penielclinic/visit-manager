@@ -432,6 +432,7 @@ export type Database = {
           duration_actual_min: number | null
           household_id: string
           id: string
+          prayer_notes: string | null
           schedule_id: string | null
           special_notes: string | null
           status: Database["public"]["Enums"]["record_status"]
@@ -450,6 +451,7 @@ export type Database = {
           duration_actual_min?: number | null
           household_id: string
           id?: string
+          prayer_notes?: string | null
           schedule_id?: string | null
           special_notes?: string | null
           status?: Database["public"]["Enums"]["record_status"]
@@ -468,6 +470,7 @@ export type Database = {
           duration_actual_min?: number | null
           household_id?: string
           id?: string
+          prayer_notes?: string | null
           schedule_id?: string | null
           special_notes?: string | null
           status?: Database["public"]["Enums"]["record_status"]
@@ -729,11 +732,11 @@ export type Database = {
         | "child"
         | "parent"
         | "sibling"
+        | "other"
         | "son_in_law"
         | "daughter_in_law"
         | "father_in_law"
         | "mother_in_law"
-        | "other"
       record_status: "draft" | "final"
       recording_status: "uploading" | "processing" | "completed" | "failed"
       user_role:
@@ -893,11 +896,11 @@ export const Constants = {
         "child",
         "parent",
         "sibling",
+        "other",
         "son_in_law",
         "daughter_in_law",
         "father_in_law",
         "mother_in_law",
-        "other",
       ],
       record_status: ["draft", "final"],
       recording_status: ["uploading", "processing", "completed", "failed"],
