@@ -17,9 +17,9 @@ export function RoutePageClient({
   const [nodes, setNodes] = useState<RouteNode[]>([])
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-8rem)]">
-      {/* 왼쪽 패널 */}
-      <div className="w-80 flex-shrink-0 bg-white rounded-xl border border-slate-200 p-4 flex flex-col">
+    <div className="flex flex-col md:flex-row gap-4 md:h-[calc(100vh-8rem)]">
+      {/* 패널 */}
+      <div className="md:w-80 md:flex-shrink-0 bg-white rounded-xl border border-slate-200 p-4 flex flex-col md:overflow-y-auto">
         <RouteOptimizerPanel
           initialSchedules={initialSchedules}
           initialDate={initialDate}
@@ -27,8 +27,8 @@ export function RoutePageClient({
         />
       </div>
 
-      {/* 지도 */}
-      <div className="flex-1 min-w-0">
+      {/* 지도 — 모바일: 고정 높이, 데스크탑: 나머지 전체 */}
+      <div className="h-[60vw] min-h-[280px] md:h-auto md:flex-1 md:min-w-0">
         <VisitMap nodes={nodes} height="100%" />
       </div>
     </div>
