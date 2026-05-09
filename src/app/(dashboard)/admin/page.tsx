@@ -170,12 +170,11 @@ export default async function AdminPage() {
                       />
                     </td>
                     <td className="px-6 py-3 text-xs text-slate-500 whitespace-nowrap">
-                      {/* @ts-expect-error supabase join type */}
-                      {u.districts?.name && u.cells?.name
-                        // @ts-expect-error supabase join type
-                        ? `${u.districts.name} / ${u.cells.name}`
-                        // @ts-expect-error supabase join type
-                        : u.districts?.name ?? u.cells?.name ?? '-'}
+                      {(() => {
+                        const d = (u.districts as { name: string } | null)?.name
+                        const c = (u.cells as { name: string } | null)?.name
+                        return d && c ? `${d} / ${c}` : d ?? c ?? '-'
+                      })()}
                     </td>
                     <td className="px-6 py-3">
                       <UserActiveToggle
