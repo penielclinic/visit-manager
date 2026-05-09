@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { requireSeniorPastor } from '@/lib/auth'
 import type { ActionResult } from '@/types/households'
 import type { Enums } from '@/types/database.types'
 
@@ -104,10 +105,11 @@ export async function finalizeRecordAction(
 }
 
 export async function deleteRecordAction(id: string): Promise<ActionResult<void>> {
+  const err = await requireSeniorPastor()
+  if (err) return { success: false, error: err }
+
   const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: '인증이 필요합니다' }
 
   const { error } = await supabase
@@ -124,10 +126,11 @@ export async function deleteRecordAction(id: string): Promise<ActionResult<void>
 export async function restoreRecordAction(
   id: string
 ): Promise<ActionResult<void>> {
+  const err = await requireSeniorPastor()
+  if (err) return { success: false, error: err }
+
   const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: '인증이 필요합니다' }
 
   const { error } = await supabase
@@ -145,10 +148,11 @@ export async function restoreRecordAction(
 export async function permanentDeleteRecordAction(
   id: string
 ): Promise<ActionResult<void>> {
+  const err = await requireSeniorPastor()
+  if (err) return { success: false, error: err }
+
   const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: '인증이 필요합니다' }
 
   const { error } = await supabase

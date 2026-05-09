@@ -12,7 +12,6 @@ import {
 } from '@/app/(dashboard)/route/actions'
 import {
   schedulesToNodes,
-  nearestNeighborTSP,
   calcTotalDistance,
 } from '@/lib/route-optimizer'
 import type { ScheduleWithCoords, RouteNode } from '@/types/routes'
@@ -74,13 +73,17 @@ export function RouteOptimizerPanel({
   }
 
   function handleOptimize() {
-    const raw = schedulesToNodes(schedules)
-    const optimized = nearestNeighborTSP(raw)
-    const dist = calcTotalDistance(optimized, CHURCH_START)
-    setNodes(optimized)
+    const sorted = [...schedules].sort((a, b) => {
+      const ta = a.scheduled_time ?? '99:99'
+      const tb = b.scheduled_time ?? '99:99'
+      return ta.localeCompare(tb)
+    })
+    const nodes = schedulesToNodes(sorted)
+    const dist = calcTotalDistance(nodes, CHURCH_START)
+    setNodes(nodes)
     setTotalDist(dist)
     setSaveMsg('')
-    onNodesChange(optimized)
+    onNodesChange(nodes)
   }
 
   function handleNodesChange(updated: RouteNode[]) {
@@ -213,7 +216,7 @@ export function RouteOptimizerPanel({
         className="w-full"
       >
         <Wand2 className="w-4 h-4 mr-2" />
-        최적 경로 계산
+        시간 순서로 경로 정렬
       </Button>
 
       {/* 거리 정보 */}

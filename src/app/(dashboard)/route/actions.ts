@@ -17,7 +17,7 @@ export async function getSchedulesForDate(
     .is('deleted_at', null)
     .eq('scheduled_date', date)
     .in('status', ['scheduled', 'in_progress'])
-    .order('visit_order', { ascending: true, nullsFirst: false })
+    .order('scheduled_time', { ascending: true, nullsFirst: false })
 
   return (data ?? []) as ScheduleWithCoords[]
 }

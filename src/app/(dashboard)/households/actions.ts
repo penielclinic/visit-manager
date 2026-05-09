@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { requireSeniorPastor } from '@/lib/auth'
 import type { Database } from '@/types/database.types'
 import type {
   HouseholdFormValues,
@@ -72,10 +73,8 @@ export async function updateHouseholdAction(
 }
 
 export async function deleteHouseholdAction(id: string): Promise<ActionResult> {
-  // 인증 확인
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { success: false, error: '인증이 필요합니다' }
+  const err = await requireSeniorPastor()
+  if (err) return { success: false, error: err }
 
   // admin 클라이언트로 소프트 삭제 (RLS update WITH CHECK 우회)
   const admin = createAdminClient<Database>(
@@ -149,8 +148,10 @@ export async function deleteMemberAction(
   memberId: string,
   householdId: string
 ): Promise<ActionResult> {
-  const supabase = createClient()
+  const err = await requireSeniorPastor()
+  if (err) return { success: false, error: err }
 
+  const supabase = createClient()
   const { error } = await supabase
     .from('household_members')
     .update({ deleted_at: new Date().toISOString(), is_active: false })

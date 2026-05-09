@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { requireSeniorPastor } from '@/lib/auth'
 import type { ScheduleFormValues } from '@/types/schedules'
 import type { ActionResult } from '@/types/households'
 import type { Enums } from '@/types/database.types'
@@ -84,8 +85,10 @@ export async function updateScheduleStatusAction(
 }
 
 export async function deleteScheduleAction(id: string): Promise<ActionResult> {
-  const supabase = createClient()
+  const err = await requireSeniorPastor()
+  if (err) return { success: false, error: err }
 
+  const supabase = createClient()
   const { error } = await supabase
     .from('visit_schedules')
     .update({ deleted_at: new Date().toISOString() })

@@ -28,7 +28,7 @@ async function getSchedules(
     )
     .is('deleted_at', null)
     .order('scheduled_date', { ascending: true })
-    .order('visit_order', { ascending: true, nullsFirst: false })
+    .order('scheduled_time', { ascending: true, nullsFirst: false })
 
   if (searchParams.date_from)
     query = query.gte('scheduled_date', searchParams.date_from)
