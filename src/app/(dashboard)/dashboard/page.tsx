@@ -35,32 +35,52 @@ async function getDashboardStats() {
 
   const [
     { count: totalHouseholds },
-    { count: completedThisMonth },
+    { data: completedRecords },
     { count: scheduledCount },
+    { data: scheduledThisMonth },
   ] = await Promise.all([
+    // 전체 활성 가구 수
     supabase
       .from('households')
       .select('*', { count: 'exact', head: true })
       .is('deleted_at', null)
       .eq('status', 'active'),
+    // 이번 달 완료된 심방 기록 (household_id 목록)
     supabase
-      .from('visit_schedules')
-      .select('*', { count: 'exact', head: true })
+      .from('visit_records')
+      .select('household_id')
       .is('deleted_at', null)
-      .eq('status', 'completed')
-      .gte('scheduled_date', monthStart),
+      .eq('status', 'final')
+      .gte('visited_at', monthStart),
+    // 오늘 이후 예정된 심방 건수
     supabase
       .from('visit_schedules')
       .select('*', { count: 'exact', head: true })
       .is('deleted_at', null)
       .in('status', ['scheduled', 'in_progress'])
       .gte('scheduled_date', today),
+    // 이번 달 심방 일정이 잡힌 가구 (household_id 목록)
+    supabase
+      .from('visit_schedules')
+      .select('household_id')
+      .is('deleted_at', null)
+      .in('status', ['scheduled', 'in_progress'])
+      .gte('scheduled_date', monthStart),
   ])
+
+  const completedSet = new Set((completedRecords ?? []).map((r) => r.household_id))
+  const scheduledSet = new Set((scheduledThisMonth ?? []).map((r) => r.household_id))
+
+  // 이번 달 일정이 있는 가구 중 완료된 가구
+  const completedThisMonth = [...scheduledSet].filter((id) => completedSet.has(id)).length
+  // 이번 달 일정이 있지만 아직 완료되지 않은 가구 (미심방)
+  const notVisited = [...scheduledSet].filter((id) => !completedSet.has(id)).length
 
   return {
     totalHouseholds: totalHouseholds ?? 0,
-    completedThisMonth: completedThisMonth ?? 0,
+    completedThisMonth,
     scheduledCount: scheduledCount ?? 0,
+    notVisited,
   }
 }
 
@@ -145,9 +165,9 @@ export default async function DashboardPage() {
     },
     {
       title: '미심방 가구',
-      value: Math.max(0, stats.totalHouseholds - stats.completedThisMonth).toString(),
+      value: stats.notVisited.toString(),
       unit: '가구',
-      description: '이번 달 미방문',
+      description: '일정 있지만 미방문',
       icon: AlertCircle,
       color: 'text-red-500',
       bg: 'bg-red-50',
@@ -229,7 +249,7 @@ export default async function DashboardPage() {
                     className="flex items-center justify-between py-3 hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex-shrink-0 text-center w-12">
+                      <div className="flex-shrink-0 text-left w-24">
                         <p className="text-xs text-slate-400 whitespace-nowrap">
                           {formatDate(s.scheduled_date)}
                         </p>
