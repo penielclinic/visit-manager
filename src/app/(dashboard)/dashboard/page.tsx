@@ -320,7 +320,7 @@ export default async function DashboardPage() {
                     className="flex items-center justify-between py-3 hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex-shrink-0 text-center w-12">
+                      <div className="flex-shrink-0 text-left w-24">
                         <p className="text-xs text-slate-400 whitespace-nowrap">
                           {r.visited_at.slice(0, 10)}
                         </p>
