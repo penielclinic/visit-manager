@@ -118,13 +118,18 @@ export function VoiceRecorder({
     recognition.onend = () => {
       // 의도치 않은 종료 시 재시작 (stopAndClassify에서는 ref를 먼저 null로 설정)
       if (recognitionRef.current && isRecordingRef.current) {
-        // 재시작 전 현재 세션의 확정 텍스트를 committed에 저장 (중복 방지)
+        // 현재 세션 확정 텍스트 저장
         committedRef.current = finalTranscriptRef.current
-        try {
-          recognition.start()
-        } catch {
-          // 이미 시작된 경우 무시
-        }
+        // 300ms 대기 후 재시작 — Chrome이 즉시 재시작하면 버퍼 오디오를 재인식해 중복 발생
+        setTimeout(() => {
+          if (recognitionRef.current && isRecordingRef.current) {
+            try {
+              recognition.start()
+            } catch {
+              // 이미 시작된 경우 무시
+            }
+          }
+        }, 300)
       }
     }
 

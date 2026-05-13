@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2, Save } from 'lucide-react'
+import { Loader2, Save, Trash2 } from 'lucide-react'
 import {
   createRecordAction,
   updateRecordAction,
@@ -103,6 +103,7 @@ export function RecordForm({
     setContent(result.content)
     setPrayerNotes(result.prayer_notes)
     setSpecialNotes(result.special_notes)
+    setVoiceApplied(true)
 
     // ai_summary, ai_follow_up은 DB에 직접 저장
     if (draftRecordId && (result.ai_summary || result.ai_follow_up)) {
@@ -110,11 +111,19 @@ export function RecordForm({
     }
   }
 
+  function handleClearVoiceContent() {
+    setContent('')
+    setPrayerNotes('')
+    setSpecialNotes('')
+    setVoiceApplied(false)
+  }
+
   // 음성 버튼 클릭 → draft 생성 후 VoiceRecorder 활성화
   const [voiceRecordId, setVoiceRecordId] = useState<string | null>(
     record?.id ?? null
   )
   const [isPreparingVoice, setIsPreparingVoice] = useState(false)
+  const [voiceApplied, setVoiceApplied] = useState(false)
 
   async function handleVoiceStart() {
     if (voiceRecordId) return // 이미 준비됨
@@ -255,12 +264,26 @@ export function RecordForm({
         </Label>
 
         {voiceRecordId ? (
-          <VoiceRecorder
-            householdId={householdId}
-            recordId={voiceRecordId}
-            onClassified={handleClassified}
-            disabled={pending}
-          />
+          <div className="space-y-2">
+            <VoiceRecorder
+              householdId={householdId}
+              recordId={voiceRecordId}
+              onClassified={handleClassified}
+              disabled={pending}
+            />
+            {voiceApplied && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleClearVoiceContent}
+                className="gap-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 h-7 text-xs"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                음성 입력 내용 지우기
+              </Button>
+            )}
+          </div>
         ) : (
           <Button
             type="button"
