@@ -65,6 +65,7 @@ export function VoiceRecorder({
 
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
   const finalTranscriptRef = useRef('')
+  const committedRef = useRef('') // 이전 세션들에서 확정된 텍스트
   const isRecordingRef = useRef(false)
 
   useEffect(() => {
@@ -84,21 +85,25 @@ export function VoiceRecorder({
     recognition.interimResults = true
 
     finalTranscriptRef.current = ''
+    committedRef.current = ''
     isRecordingRef.current = true
     setTranscript('')
     setInterimText('')
     setErrorMsg('')
 
     recognition.onresult = (event: SpeechRecognitionEventLike) => {
+      // 현재 세션의 final 결과를 처음부터 재구성 (중복 방지)
+      let sessionFinal = ''
       let interim = ''
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i]
         if (result.isFinal) {
-          finalTranscriptRef.current += result[0].transcript
+          sessionFinal += result[0].transcript
         } else {
           interim += result[0].transcript
         }
       }
+      finalTranscriptRef.current = committedRef.current + sessionFinal
       setTranscript(finalTranscriptRef.current)
       setInterimText(interim)
     }
@@ -113,6 +118,8 @@ export function VoiceRecorder({
     recognition.onend = () => {
       // 의도치 않은 종료 시 재시작 (stopAndClassify에서는 ref를 먼저 null로 설정)
       if (recognitionRef.current && isRecordingRef.current) {
+        // 재시작 전 현재 세션의 확정 텍스트를 committed에 저장 (중복 방지)
+        committedRef.current = finalTranscriptRef.current
         try {
           recognition.start()
         } catch {
