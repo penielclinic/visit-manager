@@ -354,9 +354,9 @@ export function HouseholdForm({
         )}
       </div>
 
-      {/* 가구명 */}
+      {/* 가정명 */}
       <div className="space-y-2">
-        <Label htmlFor="household_name">가구명 *</Label>
+        <Label htmlFor="household_name">가정명 *</Label>
         <Input
           id="household_name"
           name="household_name"

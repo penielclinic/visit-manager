@@ -57,7 +57,7 @@ export function RecordTable({ records, isSeniorPastor = false }: RecordTableProp
         <TableHeader>
           <TableRow>
             <TableHead>심방일</TableHead>
-            <TableHead>가구명</TableHead>
+            <TableHead>가정명</TableHead>
             <TableHead>대표자</TableHead>
             <TableHead>선교회/순</TableHead>
             <TableHead>심방 유형</TableHead>

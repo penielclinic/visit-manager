@@ -46,7 +46,7 @@ export function ScheduleTable({ schedules }: ScheduleTableProps) {
       <TableHeader>
         <TableRow>
           <TableHead>날짜</TableHead>
-          <TableHead>가구명</TableHead>
+          <TableHead>가정명</TableHead>
           <TableHead>선교회 / 순</TableHead>
           <TableHead>유형</TableHead>
           <TableHead>담당자</TableHead>

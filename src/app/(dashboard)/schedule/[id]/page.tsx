@@ -134,9 +134,9 @@ export default async function ScheduleDetailPage({ params }: PageProps) {
             </dd>
           </div>
 
-          {/* 가구 정보 */}
+          {/* 가정 정보 */}
           <div className="col-span-2">
-            <dt className="text-slate-400">가구</dt>
+            <dt className="text-slate-400">가정</dt>
             <dd className="mt-0.5">
               <Link
                 href={`/households/${schedule.household_id}`}

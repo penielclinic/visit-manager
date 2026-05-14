@@ -71,7 +71,7 @@ export function HouseholdFilters({ districts }: HouseholdFiltersProps) {
         <Input
           name="q"
           defaultValue={q}
-          placeholder="가구명·대표자 검색"
+          placeholder="가정명·대표자 검색"
           className="flex-1 sm:w-52 sm:flex-none"
         />
         <Button type="submit" variant="outline" size="sm">

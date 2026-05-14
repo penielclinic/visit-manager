@@ -21,7 +21,7 @@ function PrintContent({ record }: { record: RecordWithRelations }) {
       <table className="w-full mb-6 border-collapse">
         <tbody>
           <tr className="border-b border-gray-200">
-            <td className="py-2 pr-4 w-28 text-gray-500 font-medium">가구</td>
+            <td className="py-2 pr-4 w-28 text-gray-500 font-medium">가정</td>
             <td className="py-2 font-semibold">
               {record.households.household_name} ({record.households.representative_name})
             </td>

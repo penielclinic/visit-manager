@@ -89,7 +89,7 @@ export function RecordFilters() {
       <div className="col-span-2 sm:col-span-1 space-y-1">
         <Label className="text-xs text-slate-500">검색</Label>
         <Input
-          placeholder="가구명 또는 대표자명"
+          placeholder="가정명 또는 대표자명"
           className="w-full sm:w-44 h-8 text-sm"
           defaultValue={searchParams.get('search') ?? ''}
           onChange={(e) => update('search', e.target.value)}

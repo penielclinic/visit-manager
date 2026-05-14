@@ -110,7 +110,7 @@ export default async function RecordDetailPage({
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <dl>
           <Row
-            label="가구"
+            label="가정"
             value={
               <Link
                 href={`/households/${record.households.id}`}
