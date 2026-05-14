@@ -628,7 +628,7 @@ export function HouseholdForm({
 
       <div className="flex gap-3">
         <Button type="submit" disabled={isPending}>
-          {isPending ? '저장 중...' : mode === 'create' ? '가구 등록' : '수정 저장'}
+          {isPending ? '저장 중...' : mode === 'create' ? '세대 등록' : '수정 저장'}
         </Button>
         <Button
           type="button"

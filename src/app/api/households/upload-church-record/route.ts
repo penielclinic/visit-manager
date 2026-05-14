@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
         .single()
 
       if (hError || !household) {
-        errors.push(`${h.household_name}: ${hError?.message ?? '가구 등록 실패'}`)
+        errors.push(`${h.household_name}: ${hError?.message ?? '세대 등록 실패'}`)
         continue
       }
 

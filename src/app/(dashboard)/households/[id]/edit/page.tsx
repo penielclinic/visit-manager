@@ -54,7 +54,7 @@ export default async function EditHouseholdPage({ params }: PageProps) {
       {/* 브레드크럼 */}
       <nav className="flex items-center gap-1 text-sm text-slate-500 flex-wrap">
         <Link href="/households" className="hover:text-slate-700 whitespace-nowrap">
-          가구 관리
+          세대 관리
         </Link>
         <ChevronRight className="w-4 h-4 flex-shrink-0" />
         <Link
@@ -68,7 +68,7 @@ export default async function EditHouseholdPage({ params }: PageProps) {
       </nav>
 
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">가구 수정</h1>
+        <h1 className="text-2xl font-bold text-slate-900">세대 수정</h1>
         <p className="text-sm text-slate-500 mt-0.5 whitespace-nowrap">
           {household.household_name}
         </p>

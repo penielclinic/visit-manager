@@ -371,7 +371,7 @@ export function ChurchRecordUpload() {
             result.inserted > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
           }`}
         >
-          <p className="font-medium">{result.inserted}가구 등록 완료</p>
+          <p className="font-medium">{result.inserted}세대 등록 완료</p>
           {result.errors.length > 0 && (
             <ul className="mt-1.5 space-y-0.5 text-xs">
               {result.errors.map((e, i) => (

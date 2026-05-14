@@ -22,14 +22,14 @@ export default async function NewHouseholdPage() {
       {/* 브레드크럼 */}
       <nav className="flex items-center gap-1 text-sm text-slate-500">
         <Link href="/households" className="hover:text-slate-700 whitespace-nowrap">
-          가구 관리
+          세대 관리
         </Link>
         <ChevronRight className="w-4 h-4 flex-shrink-0" />
-        <span className="text-slate-900 whitespace-nowrap">가구 등록</span>
+        <span className="text-slate-900 whitespace-nowrap">세대 등록</span>
       </nav>
 
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">가구 등록</h1>
+        <h1 className="text-2xl font-bold text-slate-900">세대 등록</h1>
         <p className="text-sm text-slate-500 mt-0.5" style={{ wordBreak: 'keep-all' }}>
           새 가구 정보를 입력하세요.
         </p>

@@ -86,7 +86,7 @@ export default async function HouseholdsPage({ searchParams }: PageProps) {
       {/* 헤더 */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">가구 관리</h1>
+          <h1 className="text-2xl font-bold text-slate-900">세대 관리</h1>
           <p className="text-sm text-slate-500 mt-0.5" style={{ wordBreak: 'keep-all' }}>
             총 {households.length}개 가구
           </p>
@@ -101,7 +101,7 @@ export default async function HouseholdsPage({ searchParams }: PageProps) {
           <Button size="sm" asChild>
             <Link href="/households/new">
               <Plus className="w-4 h-4 mr-1.5" />
-              가구 등록
+              세대 등록
             </Link>
           </Button>
         </div>

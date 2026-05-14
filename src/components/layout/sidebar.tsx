@@ -23,7 +23,7 @@ export const navItems = [
   },
   {
     href: '/households',
-    label: '가구 관리',
+    label: '세대 관리',
     icon: Users,
     session: 'S3',
     available: true,
